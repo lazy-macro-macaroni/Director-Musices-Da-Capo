@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"[commonlisp]": {
+			"editor.tabSize": 2
+		}
+	}
+}

@@ -1,0 +1,80 @@
+
+Some notes how to use ABCL.
+
+### Lisp To Java ###
+
+* Call function
+    org.armedbear.lisp.Package pkg = Packages.findPackage("MAIN");
+    Symbol start = pkg.findAccessibleSymbol("START");
+    Function startFunction = (Function)start.getSymbolFunction();
+    startFunction.execute();
+
+### Java To Lisp ###
+
+* Return values
+    Return values are converted to lisp values when possible.
+    Known conversions:
+        * boolean => t/nil
+        * null => nil
+
+* Arbitrary number of arguments
+    If a java function has arbitrary number of arguments, for example like this:
+
+    public static Path write(Path path, byte[] bytes, OpenOption... options) throws IOException
+
+    Then the last argument must be a java array of that type, even if you don't want to give any.
+    Meaning this will not work:
+
+    (jstatic "write" "java.nio.file.Files" path bytes)
+
+    It will say no method found. Instead it has to be specified like this:
+
+    (jstatic "write" "java.nio.file.Files" path bytes (jnew-array-from-list "java.nio.file.OpenOption" '()))
+
+* Static field
+    (jfield "<class>" "<name>")
+
+    Example:
+    (jfield "javax.swing.JFileChooser" "APPROVE_OPTION")
+
+* Static method
+    (jstatic "<name>" "<class>") ; Yes... this is opposite jfield lol...
+
+    Example:
+    (jstatic "getMainFrame" "dm_java.CLManager")
+
+* Class method
+    (jcall "<name>" <object> <args...>)
+
+    Example:
+    (jcall "setJMenuBar" main-frame (ui-menu::create-menu))
+
+* Create object
+    (jnew "<class>" <args...>)
+
+    Example:
+    (jnew "java.awt.Point" (round 3.3) (round 4.5))
+
+* Arrays
+    New array:
+        (jarray-from-list <list>)
+        Array type will be the type of the first item.
+
+    New array of type:
+        (jnew-array-from-list "<Item Type>" <list>)
+
+        Example:
+        (jnew-array-from-list "java.lang.String" (list "a" "b" "c"))
+
+    Get length:
+        (jarray-length <array>)
+
+    Set item:
+        (jarray-set <array> <value> <index>)
+
+    Get item:
+        (jarray-ref <array> <index>)
+        The item is automatically converted to lisp object. To avoid this use "jarray-ref-raw" instead.
+
+    Check if array:
+        (jclass-array-p <array>)
