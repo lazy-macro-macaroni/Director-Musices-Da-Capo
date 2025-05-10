@@ -1,20 +1,6 @@
 
-(globals:standard-package :jinterop
-  jinstance-of jcheck-type exit jpath jfile path-exists directory-exists file-exists file-to-string file-to-string file-is-same file-is-parent array-to-list)
-
-;; Java
-
-(defun jinstance-of (object jclass-name)
-  (jcall "isInstance"  (jclass jclass-name) object))
-
-(defmacro jcheck-type (object jclass-name)
-  `(if (not (jinstance-of ,object ,jclass-name))
-    (error (globals:format-string "Object ~S is not of type ~S" ',object ,jclass-name))))
-
-(defun exit (&optional (exit-code 0))
-  (jstatic "exit" "java.lang.System" exit-code))
-
-;; Files
+(globals:standard-package :file-utils
+  :jpath :jfile :path-exists :directory-exists :file-exists :file-to-string :file-is-same :file-is-parent :read-from-file :save-to-file)
 
 (defun jpath (path &rest paths)
   (let ((out (cond
@@ -59,18 +45,9 @@
 
 (defun read-from-file (file)
   (jcheck-type file "java.io.File")
-  (array-to-list (jcall-raw "toArray" (jstatic-raw "readAllLines" "java.nio.file.Files" (jpath file)))))
+  (java-utils:array-to-list (jcall-raw "toArray" (jstatic-raw "readAllLines" "java.nio.file.Files" (jpath file)))))
 
 (defun save-to-file (file content)
   (jcheck-type file "java.io.File")
   (check-type content string)
   (jstatic "write" "java.nio.file.Files" (jpath file) (jcall-raw "getBytes" content) (jnew-array-from-list "java.nio.file.OpenOption" '())))
-
-;; buh
-
-(defun array-to-list (arr)
-  (assert (jcall "isArray" (jcall "getClass" arr)) () "Argument is not array.")
-
-  (loop for i from 0 upto (- (jarray-length arr) 1)
-    for item = (jarray-ref arr i)
-    collect item))

@@ -13,7 +13,7 @@
 ; From here: https://stackoverflow.com/a/22273319
 (defun download (url output-path)
   (check-type url string)
-  (jinterop:jcheck-type output-path "java.io.File")
+  (java-utils:jcheck-type output-path "java.io.File")
 
   (when (not (jcall "isFile" output-path))
     (jcall "mkdirs" (jcall "getParentFile" output-path)))
@@ -47,7 +47,7 @@
 ;; CHECKSUM
 
 (defun check-sha256 (path checksum)
-  (jinterop:jcheck-type path "java.io.File")
+  (java-utils:jcheck-type path "java.io.File")
   (check-type checksum string)
 
   (globals:print "Checking checksum...")
@@ -65,7 +65,7 @@
       result)))
 
 (defun bytes-to-hex (bytes-array)
-  ; (jinterop:jcheck-type bytes-array "java.lang.Array")
+  ; (java-utils:jcheck-type bytes-array "java.lang.Array")
 
   (let ((sb (jnew "java.lang.StringBuilder")))
     (loop
@@ -80,10 +80,10 @@
 ; From here: https://stackoverflow.com/a/40050629
 
 (defun unzip (file folder)
-  (jinterop:jcheck-type file "java.io.File")
-  (jinterop:jcheck-type folder "java.io.File")
+  (java-utils:jcheck-type file "java.io.File")
+  (java-utils:jcheck-type folder "java.io.File")
 
-  (globals:println "File = ~A~%Folder = ~A" (jinterop:file-to-string file) (jinterop:file-to-string folder))
+  (globals:println "File = ~A~%Folder = ~A" (file-utils:file-to-string file) (file-utils:file-to-string folder))
 
   (print-progress-bar)
 
@@ -121,10 +121,10 @@
 ;; Extract tar.gz
 
 (defun extract-tar-gz (file folder)
-  (jinterop:jcheck-type file "java.io.File")
-  (jinterop:jcheck-type folder "java.io.File")
+  (java-utils:jcheck-type file "java.io.File")
+  (java-utils:jcheck-type folder "java.io.File")
 
-  (globals:println "File = ~A~%Folder = ~A" (jinterop:file-to-string file) (jinterop:file-to-string folder))
+  (globals:println "File = ~A~%Folder = ~A" (file-utils:file-to-string file) (file-utils:file-to-string folder))
 
   (print-progress-bar)
 
@@ -141,8 +141,8 @@
       when (not (jcall "isDirectory" entry))
       do
 
-      ; (globals:println "Entry path = ~A" (jinterop:file-to-string (jinterop:jfile folder (jcall "getName" entry))))
-      (let ((f (jinterop:jfile folder (jcall "getName" entry))))
+      ; (globals:println "Entry path = ~A" (file-utils:file-to-string (file-utils:jfile folder (jcall "getName" entry))))
+      (let ((f (file-utils:jfile folder (jcall "getName" entry))))
         (jcall "mkdirs" (jcall "getParentFile" f))
 
         (let ((fos (jnew "java.io.BufferedOutputStream" (jnew "java.io.FileOutputStream" f))))
@@ -165,12 +165,12 @@
 
 ;; Download JDKs
 
-; (defvar *jdks-dir* (jinterop:jfile "." "build" "jdks"))
+; (defvar *jdks-dir* (file-utils:jfile "." "build" "jdks"))
 
 (defun unzip-jdk (zip-file out-dir completed-file)
   (globals:println "Extracting...")
 
-  (let ((file-name (jinterop:file-to-string zip-file)))
+  (let ((file-name (file-utils:file-to-string zip-file)))
     (cond
       ((jcall "endsWith" file-name ".zip") (unzip zip-file out-dir))
       ((jcall "endsWith" file-name ".tar.gz") (extract-tar-gz zip-file out-dir))
@@ -183,9 +183,9 @@
 (defun download-jdk (url checksum zip-file out-dir completed-file)
   (check-type url string)
   (check-type checksum string)
-  (jinterop:jcheck-type zip-file "java.io.File")
-  (jinterop:jcheck-type out-dir "java.io.File")
-  (jinterop:jcheck-type completed-file "java.io.File")
+  (java-utils:jcheck-type zip-file "java.io.File")
+  (java-utils:jcheck-type out-dir "java.io.File")
+  (java-utils:jcheck-type completed-file "java.io.File")
 
   (when (jcall "isFile" completed-file)
     (globals:println "OK")
@@ -201,7 +201,7 @@
       (progn
         (globals:println "BAD"))))
 
-  (let ((file (jinterop:jfile (build-paths:jdks-dir) "download.temp")))
+  (let ((file (file-utils:jfile (build-paths:jdks-dir) "download.temp")))
     (globals:println "NO")
     (globals:println "Downloading...")
     (download url file)
@@ -210,34 +210,34 @@
       (unzip-jdk zip-file out-dir completed-file)
       (progn
         (globals:println "Bad checksum after downloading. Program will exit.")
-        (jinterop:exit)))))
+        (java-utils:exit)))))
 
 (defun download-windows-jdk ()
   (Globals:print "Windows JDK...")
   (download-jdk
     "https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk"
     "6b64255e1bd690b09a135d44ac6b0d6bd4490728a8bad81904941d2789d394c0"
-    (jinterop:jfile (build-paths:jdks-dir) "windows-jdk-17.zip")
-    (jinterop:jfile (build-paths:jdks-dir) "windows")
-    (jinterop:jfile (build-paths:jdks-dir) "windows-jdk-17-completed.txt")))
+    (file-utils:jfile (build-paths:jdks-dir) "windows-jdk-17.zip")
+    (file-utils:jfile (build-paths:jdks-dir) "windows")
+    (file-utils:jfile (build-paths:jdks-dir) "windows-jdk-17-completed.txt")))
 
 (defun download-macos-m-chip-jdk ()
   (Globals:print "MacOS m-chip JDK...")
   (download-jdk
     "https://api.adoptium.net/v3/binary/latest/17/ga/mac/aarch64/jdk/hotspot/normal/eclipse?project=jdk"
     "d8b2f77f755d06e81a540834c5be22ed86f3c8a51a20396606c074303f8f9e2d"
-    (jinterop:jfile (build-paths:jdks-dir) "macos-m-chip-jdk-17.tar.gz")
-    (jinterop:jfile (build-paths:jdks-dir) "macos-m-chip")
-    (jinterop:jfile (build-paths:jdks-dir) "macos-m-chip-jdk-17-completed.txt")))
+    (file-utils:jfile (build-paths:jdks-dir) "macos-m-chip-jdk-17.tar.gz")
+    (file-utils:jfile (build-paths:jdks-dir) "macos-m-chip")
+    (file-utils:jfile (build-paths:jdks-dir) "macos-m-chip-jdk-17-completed.txt")))
 
 (defun download-macos-intel-jdk ()
   (Globals:print "MacOS intel JDK...")
   (download-jdk
     "https://api.adoptium.net/v3/binary/latest/17/ga/mac/x64/jdk/hotspot/normal/eclipse?project=jdk"
     "840535070200a944a6b582d258ee84608bd25c9f2b5d1cdddb58dfadb019675a"
-    (jinterop:jfile (build-paths:jdks-dir) "macos-intel-jdk-17.tar.gz")
-    (jinterop:jfile (build-paths:jdks-dir) "macos-intel")
-    (jinterop:jfile (build-paths:jdks-dir) "macos-intel-jdk-17-completed.txt")))
+    (file-utils:jfile (build-paths:jdks-dir) "macos-intel-jdk-17.tar.gz")
+    (file-utils:jfile (build-paths:jdks-dir) "macos-intel")
+    (file-utils:jfile (build-paths:jdks-dir) "macos-intel-jdk-17-completed.txt")))
 
 (defun download-all-jdks ()
   (download-windows-jdk)
@@ -254,4 +254,4 @@
       (:macos-intel (download-macos-intel-jdk))
       (otherwise
         (globals:println "Bad platform: ~S. Program will exit." platform)
-        (jinterop:exit)))))
+        (java-utils:exit)))))

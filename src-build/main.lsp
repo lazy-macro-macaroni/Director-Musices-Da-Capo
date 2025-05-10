@@ -1,7 +1,8 @@
 
 (load "src/globals.lsp")
 (load "src/version.lsp")
-(load "src/jinterop.lsp")
+(load "src/utils/utils.lsp")
+
 (load "src-build/paths.lsp")
 (load "src-build/utils.lsp")
 (load "src-build/download.lsp")
@@ -19,14 +20,14 @@
     (funcall init)))
 
 ; (defun option-2 ()
-;   (build-download:unzip (jinterop:jfile "." "testfile.zip") (jinterop:jfile "." "zip_out")))
+;   (build-download:unzip (file-utils:jfile "." "testfile.zip") (file-utils:jfile "." "zip_out")))
   ; (Globals:println "Got sum: ~A"
   ;         (build-download:check-sha256
   ;           "testfile.zip" "6b64255e1bd690b09a135d44ac6b0d6bd4490728a8bad81904941d2789d394c0")))
             ;(build-download:download "https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk" "testfile.zip"))))
 
 (defun clean-build ()
-  (build-utils:delete-path (jinterop:jfile "." "build")))
+  (build-utils:delete-path (file-utils:jfile "." "build")))
 
 (defun run-option2 (build-option)
   (case build-option
@@ -49,7 +50,7 @@
   ; (globals:handle-errors
   ;   (progn
   ;   ; (globals:println "Result = ~S" (jstatic "testLisp" "dm_java.Main"))
-  ;   ; (build-utils:delete-path (jinterop:jfile "." "build" "java"))
+  ;   ; (build-utils:delete-path (file-utils:jfile "." "build" "java"))
   ;     ; (clean-build)
   ;     (build-build:build-all)
   ;   )

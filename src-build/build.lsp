@@ -28,32 +28,32 @@
 
 (defun get-java-command (command)
   (case (get-current-platform)
-    (:windows (jinterop:jfile (build-paths:jdk-path :windows) "bin" (globals:format-string "~A.exe" command)))
-    ((:macos-m-chip :macos-intel) (jinterop:jfile (build-paths:jdk-path :windows) "Home" "bin" command))
+    (:windows (file-utils:jfile (build-paths:jdk-path :windows) "bin" (globals:format-string "~A.exe" command)))
+    ((:macos-m-chip :macos-intel) (file-utils:jfile (build-paths:jdk-path :windows) "Home" "bin" command))
     (t (error "Unknown platform."))))
 
 (defun run-java (java-command &rest arguments)
   (let* ((command-file (get-java-command java-command))
-         (arguments2 (loop for arg in arguments collect (if (jinterop:jinstance-of arg "java.io.File") (jinterop:file-to-string arg) arg)))
-         (arguments3 (cons (jinterop:file-to-string command-file) arguments2))
+         (arguments2 (loop for arg in arguments collect (if (java-utils:jinstance-of arg "java.io.File") (file-utils:file-to-string arg) arg)))
+         (arguments3 (cons (file-utils:file-to-string command-file) arguments2))
          (pb (jnew "java.lang.ProcessBuilder" (jnew-array-from-list "java.lang.String" arguments3))))
     (jcall "inheritIO" pb)
     (let ((result (jcall "waitFor" (jcall "start" pb))))
       (when (not (eq result 0))
         (Globals:println "Java command exited with non-zero result: ~A. See error messages above.~%Command: ~A" result arguments3)
-        (jinterop:exit)))))
+        (java-utils:exit)))))
 
 (defun build-java ()
   (globals:print "Building java...")
   (run-java "javac" "-cp"
     (concatenate 'string
-      (jinterop:file-to-string (jinterop:jfile "." "lib" "abcl-1.9.2" "abcl.jar"))
+      (file-utils:file-to-string (file-utils:jfile "." "lib" "abcl-1.9.2" "abcl.jar"))
       (build-utils:get-classpath-separator)
-      (jinterop:file-to-string (jinterop:jfile "." "lib" "abcl-1.9.2" "abcl-contrib.jar")))
+      (file-utils:file-to-string (file-utils:jfile "." "lib" "abcl-1.9.2" "abcl-contrib.jar")))
     "-d"
-    (jinterop:jfile "." "build" "java")
+    (file-utils:jfile "." "build" "java")
     (concatenate 'string
-      (jinterop:file-to-string (jinterop:jfile "." "src-java" "dm_java"))
+      (file-utils:file-to-string (file-utils:jfile "." "src-java" "dm_java"))
       (build-utils:get-path-separator)
       "*.java"))
   (globals:println "OK"))
@@ -61,14 +61,14 @@
 (defun create-jre (platform)
   (let ((jdk-path (build-paths:jdk-path platform))
         (out-path (build-paths:jre-path platform)))
-    (when (jinterop:path-exists out-path)
+    (when (file-utils:path-exists out-path)
       (build-utils:with-task "Deleting JRE"
         (build-utils:delete-path out-path)))
 
     (build-utils:with-task "Creating JRE"
       (run-java "jlink" "--compress" "2" "--strip-debug" "--no-header-files" "--no-man-pages"
         "--output" out-path
-        "--module-path" (jinterop:file-to-string (build-paths:jmods-path platform))
+        "--module-path" (file-utils:file-to-string (build-paths:jmods-path platform))
         "--add-modules" "java.base,java.desktop"))))
 
 (defun build (&rest platforms)

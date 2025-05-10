@@ -79,16 +79,3 @@
       ))))
 
 (load-files)
-
-; (defun start () (load-files))
-  ; (handler-case
-  ;   (load-files)
-  ;   (error (c) (format t "[CL-ERR] Failed starting: ~A~%" c))))
-  ; (jstatic "loadingProgress" "dm_java.CLManager" 5 100)
-
-
-;   (glue:load-active-score-from-file "D:\\Dropbox\\programming\\director-musices\\test.mus"))
-;   ; (jstatic "invokeLater" "javax.swing.SwingUtilities"
-;   ;   (jinterface-implementation "java.lang.Runnable" "run" (lambda () (show-ui)))))
-
-; (start)

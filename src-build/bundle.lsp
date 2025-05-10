@@ -27,25 +27,25 @@
 
 (defun get-out-path (platform)
   (case platform
-    (:windows (jinterop:jfile "." "build" "windows"))
-    (:macos-m-chip (jinterop:jfile "." "build" "macos-m-chip"))
-    (:macos-intel (jinterop:jfile "." "build" "macos-intel"))
+    (:windows (file-utils:jfile "." "build" "windows"))
+    (:macos-m-chip (file-utils:jfile "." "build" "macos-m-chip"))
+    (:macos-intel (file-utils:jfile "." "build" "macos-intel"))
     (otherwise
       (error "Bad platform: ~S." platform))))
 
 (defun get-out-main (out-path platform)
   (case platform
     (:windows out-path)
-    ((:macos-m-chip :macos-intel) (jinterop:jfile out-path "Director-Musices.app" "Contents" "MacOS"))
+    ((:macos-m-chip :macos-intel) (file-utils:jfile out-path "Director-Musices.app" "Contents" "MacOS"))
     (otherwise
       (error "Bad platform: ~S." platform))))
 
 (defun add-executable-windows (out-main)
   (build-utils:with-task "Copying exe"
-    (build-utils:copy-path (jinterop:jfile "." "src-exe" "Director-Musices.exe") (jinterop:jfile out-main "Director-Musices.exe")))
+    (build-utils:copy-path (file-utils:jfile "." "src-exe" "Director-Musices.exe") (file-utils:jfile out-main "Director-Musices.exe")))
 
   (build-utils:with-task "Creating java command file"
-    (build-utils:write-to-file (jinterop:jfile out-main "resources" "java-command.txt") (java-command :windows))))
+    (build-utils:write-to-file (file-utils:jfile out-main "resources" "java-command.txt") (java-command :windows))))
 
 (defun add-executable-macos (out-main)
   (build-utils:with-task "Adding shell script"
@@ -54,7 +54,7 @@
                      "cd \"$(dirname \"$0\")\"" (string #\newline)
                      "./jre/bin/java "
                      (java-command :macos-m-chip))))
-      (build-utils:write-to-file (jinterop:jfile out-main "Director-Musices") content))))
+      (build-utils:write-to-file (file-utils:jfile out-main "Director-Musices") content))))
 
 (defun add-executable (platform out-main)
   (case platform
@@ -70,37 +70,37 @@
             ((:macos-m-chip :macos-intel) ".tar.gz")
             (otherwise
               (error "Bad platform: ~S." platform)))))
-    (jinterop:jfile "." "build" (globals:format-string "Director-Musices-~A-~A~A" version:*dm-version* (string platform) extension))))
+    (file-utils:jfile "." "build" (globals:format-string "Director-Musices-~A-~A~A" version:*dm-version* (string platform) extension))))
 
 (defun bundle (platform)
   (let* ((out-path (get-out-path platform))
          (out-main (get-out-main out-path platform)))
-    (when (jinterop:path-exists out-path)
+    (when (file-utils:path-exists out-path)
       (build-utils:with-task "Deleting previous files"
         (build-utils:delete-path out-path)))
 
     (build-utils:with-task "Copying JRE"
-      (build-utils:copy-path (build-paths:jre-path platform) (jinterop:jfile out-main "jre")))
+      (build-utils:copy-path (build-paths:jre-path platform) (file-utils:jfile out-main "jre")))
 
     (build-utils:with-task "Copying DM"
-      (build-utils:copy-path (jinterop:jfile "." "dm") (jinterop:jfile out-main "dm")))
+      (build-utils:copy-path (file-utils:jfile "." "dm") (file-utils:jfile out-main "dm")))
 
     (build-utils:with-task "Copying sources"
-      (build-utils:copy-path (jinterop:jfile "." "src") (jinterop:jfile out-main "src")))
+      (build-utils:copy-path (file-utils:jfile "." "src") (file-utils:jfile out-main "src")))
 
     (build-utils:with-task "Copying compiled java"
-      (build-utils:copy-path (jinterop:jfile "." "build" "java") (jinterop:jfile out-main "java")))
+      (build-utils:copy-path (file-utils:jfile "." "build" "java") (file-utils:jfile out-main "java")))
 
     (build-utils:with-task "Copying resources"
-      (build-utils:copy-path (jinterop:jfile "." "resources") (jinterop:jfile out-main "resources")))
+      (build-utils:copy-path (file-utils:jfile "." "resources") (file-utils:jfile out-main "resources")))
 
     (build-utils:with-task "Copying libraries"
-      (build-utils:copy-path (jinterop:jfile "." "lib") (jinterop:jfile out-main "lib")))
+      (build-utils:copy-path (file-utils:jfile "." "lib") (file-utils:jfile out-main "lib")))
 
     (add-executable platform out-main)
 
     (let ((archive-file (get-archive-file platform)))
-      (when (jinterop:path-exists archive-file)
+      (when (file-utils:path-exists archive-file)
         (build-utils:with-task "Deleting previous archive"
           (build-utils:delete-path archive-file)))
       (build-utils:with-task "Creating archive"

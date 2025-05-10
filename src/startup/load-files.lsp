@@ -53,7 +53,6 @@
     "dm/dm-source/rules/accent-analysis.lsp"
     "dm/dm-source/rules/accent-rule-ebrp.lsp"
 
-    "src/ui/swing.lsp"
     "src/ui/glue.lsp"
     "src/ui/score.lsp"
     "src/ui/player.lsp"

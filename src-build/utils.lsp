@@ -12,16 +12,16 @@
 ;;
 
 (defun delete-path2 (parent path)
-  (jinterop:jcheck-type parent "java.io.File")
-  (jinterop:jcheck-type path "java.io.File")
+  (java-utils:jcheck-type parent "java.io.File")
+  (java-utils:jcheck-type path "java.io.File")
 
   (assert (jcall "exists" path) (path) "Path doesn't exist: ~A" (jcall "getPath" path))
 
   ; (when (not (jcall "exists" path))
 
   ; Some extra protection to not delete whole system or something
-  (when (not (jinterop:file-is-parent parent path))
-    (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping deletion." (jinterop:file-to-string path) (jinterop:file-to-string parent))
+  (when (not (file-utils:file-is-parent parent path))
+    (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping deletion." (file-utils:file-to-string path) (file-utils:file-to-string parent))
     (return-from delete-path2))
 
   (cond
@@ -38,7 +38,7 @@
           do
           (delete-path2 parent item)))
       (jcall "delete" path))
-    (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file" (jinterop:file-to-string path)))))
+    (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file" (file-utils:file-to-string path)))))
 
 (defun delete-path (path)
   (delete-path2 path path))
@@ -48,19 +48,19 @@
 ;;
 
 (defun copy-path2 (input output current)
-  (jinterop:jcheck-type input "java.io.File")
-  (jinterop:jcheck-type output "java.io.File")
-  ; (jinterop:jcheck-type current "java.io.File")
+  (java-utils:jcheck-type input "java.io.File")
+  (java-utils:jcheck-type output "java.io.File")
+  ; (java-utils:jcheck-type current "java.io.File")
 
   (assert (jcall "exists" input) (input) "Input path doesn't exist: ~A" (jcall "getPath" input))
   ; (assert (jcall "exists" current) (current) "Current path doesn't exist: ~A" (jcall "getPath" current))
 
-  (let* ((input-file (apply #'jinterop:jfile input current))
-         (output-file (apply #'jinterop:jfile output current)))
+  (let* ((input-file (apply #'file-utils:jfile input current))
+         (output-file (apply #'file-utils:jfile output current)))
 
     ; Some extra protection to not copy whole system or something
-    (when (not (jinterop:file-is-parent input input-file))
-      (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping copy." (jinterop:file-to-string input-file) (jinterop:file-to-string input))
+    (when (not (file-utils:file-is-parent input input-file))
+      (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping copy." (file-utils:file-to-string input-file) (file-utils:file-to-string input))
       (return-from copy-path2))
 
     (cond
@@ -76,7 +76,7 @@
             when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
             do
             (copy-path2 input output (append current (list (jcall "getName" item)))))))
-      (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (jinterop:file-to-string input-file))))))
+      (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (file-utils:file-to-string input-file))))))
 
 (defun copy-path (input output)
   (copy-path2 input output '()))
@@ -101,19 +101,19 @@
         (if (< read-length 0) (return))
         (jcall "write" zip-stream data 0 read-length)))
 
-    ; (globals:println "Add file ~A, to path: ~A" (jinterop:file-to-string input-file) zip-path)
+    ; (globals:println "Add file ~A, to path: ~A" (file-utils:file-to-string input-file) zip-path)
     (jcall "closeEntry" zip-stream)
     (jcall "close" input-stream)))
 
 (defun zip2 (input-folder zip-stream process-file current)
-  (jinterop:jcheck-type input-folder "java.io.File")
+  (java-utils:jcheck-type input-folder "java.io.File")
 
-  (assert (jcall "exists" input-folder) (input-folder) "Input path doesn't exist: ~A" (jinterop:file-to-string input-folder))
+  (assert (jcall "exists" input-folder) (input-folder) "Input path doesn't exist: ~A" (file-utils:file-to-string input-folder))
 
-  (let* ((input-file (apply #'jinterop:jfile input-folder current)))
+  (let* ((input-file (apply #'file-utils:jfile input-folder current)))
     ; Some extra protection to not zip whole system or something
-    (when (not (jinterop:file-is-parent input-folder input-file))
-      (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping zipping." (jinterop:file-to-string input-file) (jinterop:file-to-string input-folder))
+    (when (not (file-utils:file-is-parent input-folder input-file))
+      (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping zipping." (file-utils:file-to-string input-file) (file-utils:file-to-string input-folder))
       (return-from zip2))
 
     (cond
@@ -127,14 +127,14 @@
             when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
             do
             (zip2 input-folder zip-stream process-file (append current (list (jcall "getName" item)))))))
-      (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (jinterop:file-to-string input-file))))))
+      (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (file-utils:file-to-string input-file))))))
 
 (defun zip (input-folder output-file &key process-file)
-  (jinterop:jcheck-type input-folder "java.io.File")
-  (jinterop:jcheck-type output-file "java.io.File")
+  (java-utils:jcheck-type input-folder "java.io.File")
+  (java-utils:jcheck-type output-file "java.io.File")
 
-  (when (jinterop:directory-exists output-file)
-    (error "Output file is directory: ~A" (jinterop:file-to-string output-file)))
+  (when (file-utils:directory-exists output-file)
+    (error "Output file is directory: ~A" (file-utils:file-to-string output-file)))
 
   (let* ((file-stream (jnew "java.io.FileOutputStream" output-file))
          (zip-stream (jnew "java.util.zip.ZipOutputStream" file-stream)))
@@ -163,19 +163,19 @@
         (if (< read-length 0) (return))
         (jcall "write" tar-stream data 0 read-length)))
 
-    ; (globals:println "Add file ~A, to path: ~A" (jinterop:file-to-string input-file) zip-path)
+    ; (globals:println "Add file ~A, to path: ~A" (file-utils:file-to-string input-file) zip-path)
     (jcall "closeArchiveEntry" tar-stream)
     (jcall "close" input-stream)))
 
 (defun tar-gz2 (input-folder tar-stream process-file current)
-  (jinterop:jcheck-type input-folder "java.io.File")
+  (java-utils:jcheck-type input-folder "java.io.File")
 
-  (assert (jcall "exists" input-folder) (input-folder) "Input path doesn't exist: ~A" (jinterop:file-to-string input-folder))
+  (assert (jcall "exists" input-folder) (input-folder) "Input path doesn't exist: ~A" (file-utils:file-to-string input-folder))
 
-  (let* ((input-file (apply #'jinterop:jfile input-folder current)))
+  (let* ((input-file (apply #'file-utils:jfile input-folder current)))
     ; Some extra protection to not compress whole system or something
-    (when (not (jinterop:file-is-parent input-folder input-file))
-      (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping zipping." (jinterop:file-to-string input-file) (jinterop:file-to-string input-folder))
+    (when (not (file-utils:file-is-parent input-folder input-file))
+      (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping zipping." (file-utils:file-to-string input-file) (file-utils:file-to-string input-folder))
       (return-from tar-gz2))
 
     (cond
@@ -189,14 +189,14 @@
             when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
             do
             (tar-gz2 input-folder tar-stream process-file (append current (list (jcall "getName" item)))))))
-      (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (jinterop:file-to-string input-file))))))
+      (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (file-utils:file-to-string input-file))))))
 
 (defun tar-gz (input-folder output-file &key process-file)
-  (jinterop:jcheck-type input-folder "java.io.File")
-  (jinterop:jcheck-type output-file "java.io.File")
+  (java-utils:jcheck-type input-folder "java.io.File")
+  (java-utils:jcheck-type output-file "java.io.File")
 
-  (when (jinterop:directory-exists output-file)
-    (error "Output file is directory: ~A" (jinterop:file-to-string output-file)))
+  (when (file-utils:directory-exists output-file)
+    (error "Output file is directory: ~A" (file-utils:file-to-string output-file)))
 
   (let* ((file-stream (jnew "java.io.FileOutputStream" output-file))
          (buf-stream (jnew "java.io.BufferedOutputStream" file-stream))
@@ -217,11 +217,11 @@
     :error-prefix (globals:format-string "FAIL~%")
     :success (globals:println "OK")
     :failure
-    (jinterop:exit 1)))
+    (java-utils:exit 1)))
 
 (defun write-to-file (output-file text)
-  (jinterop:jcheck-type output-file "java.io.File")
+  (java-utils:jcheck-type output-file "java.io.File")
 
-  (let ((print-writer (jnew "java.io.PrintWriter" (jinterop:file-to-string output-file) "UTF-8")))
+  (let ((print-writer (jnew "java.io.PrintWriter" (file-utils:file-to-string output-file) "UTF-8")))
     (jcall "print" print-writer text)
     (jcall "close" print-writer)))

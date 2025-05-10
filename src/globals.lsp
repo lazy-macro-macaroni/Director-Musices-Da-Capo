@@ -54,27 +54,6 @@
          (jcall "print" (jfield "java.lang.System" "err") (format nil "~A~%Error: ~A~%  In file: ~A~%  Backtrace:~%~A" ,error-prefix c filename backtrace))
          ,failure))))
 
-;; SWING
-
-(defmacro runnable (error-name &rest forms)
-  `(jinterface-implementation "java.lang.Runnable" "run" (lambda () (handle-errors ,@forms)))) ;  (handler-case (progn ,@forms) (condition (c) (format t "[CL-ERR] Error in ~A: ~A~%" ,error-name c))))))
-
-(defmacro invoke-later (&rest forms)
-  `(jstatic "invokeLater" "javax.swing.SwingUtilities" (runnable "invoke-later" ,@forms)))
-
-(defmacro invoke-and-wait (&rest forms)
-  `(jstatic "invokeAndWait" "javax.swing.SwingUtilities" (runnable "invoke-and-wait" ,@forms)))
-
-;; THREADS
-
-(defmacro thread (&rest forms)
-  `(jnew "java.lang.Thread" (runnable ,@forms)))
-
-(defmacro run-in-thread (&rest forms)
-  `(let ((thr (thread ,@forms)))
-    (jcall "start" thr)
-    thr))
-
 ;; PACKAGES
 
 (defun del-package (name)

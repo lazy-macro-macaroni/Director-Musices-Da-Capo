@@ -30,5 +30,5 @@
         ; frame.setVisible(true);
   ; (globals:invoke-and-wait
   ;   (jstatic "showMessageDialog" "javax.swing.JOptionPane" +NULL+ "Eggs are not supposed to be green."))
-  ; (jinterop:exit)
+  ; (java-utils:exit)
   )
