@@ -9,10 +9,12 @@
 (load "src-build/bundle.lsp")
 (load "src-build/build.lsp")
 
+(load "src-test/test.lsp")
+
 (globals:standard-package :build-main :main)
 
 (defvar *build-option-min* 1)
-(defvar *build-option-max* 7)
+(defvar *build-option-max* 8)
 
 (defun run-program ()
   (load "src/init.lsp")
@@ -38,6 +40,7 @@
     (5 (build-build:build-windows))
     (6 (build-build:build-macos-m-chip))
     (7 (build-build:build-macos-intel))
+    (8 (test:main))
     (otherwise (globals:println "Unknown option: ~A" build-option))))
 
 (defun run-option (build-option)
