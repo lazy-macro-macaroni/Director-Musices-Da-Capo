@@ -220,10 +220,30 @@ public class Main {
     }
 
     private static void runFunction(String packageName, String functionName, LispObject[] args) {
-        org.armedbear.lisp.Package pkg = Packages.findPackage(packageName.toUpperCase());
-        org.armedbear.lisp.Symbol start = pkg.findAccessibleSymbol(functionName.toUpperCase());
-        org.armedbear.lisp.Function function = (org.armedbear.lisp.Function)start.getSymbolFunction();
-        function.execute(args);
+        try {
+            packageName = packageName.toUpperCase();
+            functionName = functionName.toUpperCase();
+
+            org.armedbear.lisp.Package pkg = Packages.findPackage(packageName);
+
+            if (pkg == null) {
+                System.err.println("Couldn't find lisp package: \"" + packageName + "\".");
+                System.exit(1);
+            }
+
+            org.armedbear.lisp.Symbol start = pkg.findAccessibleSymbol(functionName);
+
+            if (start == null) {
+                System.err.println("Couldn't find lisp function: \"" + functionName + "\".");
+                System.exit(1);
+            }
+
+            org.armedbear.lisp.Function function = (org.armedbear.lisp.Function)start.getSymbolFunction();
+            function.execute(args);
+        } catch(Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     private static void runFunction(String packageName, String functionName) {
@@ -231,12 +251,16 @@ public class Main {
     }
 
     public static void main(String[] argv) throws Exception {
+        // LoadingError.Error(true, "Hello world!", "blabla\nsodifjsodif\noasdifj\ndddddd");
+        // System.exit(0);
+
         if (argv.length == 0 || (argv.length == 1 &&  "--run".equals(argv[0]))) {
             loadInterpreter(true);
             ProgressManager.setIndeterminate("Loading Init File");
             loadFile("src/init.lsp");
+            if (LoadingError.ErrorHappened) System.exit(1);
             ProgressManager.setIndeterminate("Running Init");
-            runFunction("init", "init");
+            runFunction("main", "main");
             return;
         }
 
@@ -255,9 +279,8 @@ public class Main {
             System.out.print("Loading lisp interpreter...");
             loadInterpreter(false);
             System.out.println("OK");
-            System.out.print("Loading build file...");
-            loadFile("src-build/main.lsp");
-            System.out.println("OK");
+            loadFile("src-build/build-init.lsp");
+            if (LoadingError.ErrorHappened) System.exit(1);
             runFunction("build-main", "main", new LispObject[]{ LispInteger.getInstance(option) });
             return;
         }

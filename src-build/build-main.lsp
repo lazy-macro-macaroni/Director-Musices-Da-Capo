@@ -1,16 +1,4 @@
 
-(load "src/globals.lsp")
-(load "src/version.lsp")
-(load "src/utils/utils.lsp")
-
-(load "src-build/paths.lsp")
-(load "src-build/utils.lsp")
-(load "src-build/download.lsp")
-(load "src-build/bundle.lsp")
-(load "src-build/build.lsp")
-
-(load "src-test/test.lsp")
-
 (globals:standard-package :build-main :main)
 
 (defvar *build-option-min* 1)

@@ -1,6 +1,6 @@
 
 (globals:standard-package :swing-utils
-  :invoke-later :invoke-and-wait)
+  :invoke-later :invoke-and-wait :choose-file)
 
 ;; MULTITHREADING ;;
 

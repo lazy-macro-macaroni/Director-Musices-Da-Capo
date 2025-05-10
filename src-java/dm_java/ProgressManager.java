@@ -103,9 +103,9 @@ public class ProgressManager {
         show();
         redraw();
 
-        if (indeterminateUpdater == null) {
-            indeterminateUpdater = new ProgressIndeterminateUpdater(progressDrawer);
-        }
+        // if (indeterminateUpdater == null) {
+        //     indeterminateUpdater = new ProgressIndeterminateUpdater(progressDrawer);
+        // }
     }
 
     public static synchronized void redraw() {

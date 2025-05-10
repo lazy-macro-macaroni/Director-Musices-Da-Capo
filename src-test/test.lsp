@@ -1,7 +1,4 @@
 
-(load "src/globals.lsp")
-(load "src/version.lsp")
-
 (globals:standard-package :test :main)
 
 (defun get-yn (message yes-default)
