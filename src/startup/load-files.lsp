@@ -106,4 +106,5 @@
   '("src-test/test.lsp"))
 
 (defun load-files (with-ui &rest files)
-  (load-with-progress with-ui files))
+  (load-with-progress with-ui files)
+  (jstatic "sleep" "java.lang.Thread" 200))

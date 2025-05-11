@@ -32,4 +32,8 @@ public class Fonts {
     public static Font GetFreeSansBold() {
         return LoadFont("FreeSansBold", Paths.get(".", "resources", "freefont", "FreeSansBold.ttf"));
     }
+
+    public static Font GetRoboto() {
+        return LoadFont("Roboto", Paths.get(".", "resources", "RobotoFont", "Roboto-Regular.ttf"));
+    }
 }

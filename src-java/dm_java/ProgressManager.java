@@ -13,21 +13,13 @@ import java.nio.file.Paths;
 public class ProgressManager {
     private static BufferedImage backgroundImage;
     private static Dimension backgroundImageSize;
-    private final static ProgressDrawer progressDrawer = new ProgressDrawer();
+    private static ProgressDrawer progressDrawer;
     private static ProgressPanel progressPanel = null;
-    private static ProgressIndeterminateUpdater indeterminateUpdater = null;
 
     private static SplashScreen splashScreen = null;
     private static Graphics splashGraphics = null;
 
     private static JDialog dialog = null;
-
-    private static synchronized void stopIndeterminateUpdater() {
-        if (indeterminateUpdater == null) return;
-
-        indeterminateUpdater.stop();
-        indeterminateUpdater = null;
-    }
 
     public static synchronized void show() {
         show(null);
@@ -44,6 +36,10 @@ public class ProgressManager {
                 System.err.println("Couldn't load image: " + path + "\nWill now exit.");
                 System.exit(1);
             }
+        }
+
+        if (progressDrawer == null) {
+            progressDrawer = new ProgressDrawer(backgroundImage);
         }
 
         if (splashScreen != null) return;
@@ -76,7 +72,6 @@ public class ProgressManager {
     }
 
     public static synchronized void hide() {
-        stopIndeterminateUpdater();
         progressPanel = null;
 
         if (splashScreen != null) {
@@ -92,20 +87,9 @@ public class ProgressManager {
     }
 
     public static synchronized void setPercentage(String text, float progress) {
-        stopIndeterminateUpdater();
+        show();
         progressDrawer.setPercentage(text, progress);
-        show();
         redraw();
-    }
-
-    public static synchronized void setIndeterminate(String text) {
-        progressDrawer.setIndeterminate(text);
-        show();
-        redraw();
-
-        // if (indeterminateUpdater == null) {
-        //     indeterminateUpdater = new ProgressIndeterminateUpdater(progressDrawer);
-        // }
     }
 
     public static synchronized void redraw() {

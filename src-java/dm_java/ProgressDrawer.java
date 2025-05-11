@@ -2,6 +2,11 @@ package dm_java;
 
 import java.awt.*;
 // import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Paths;
+
+import javax.imageio.ImageIO;
 
 public class ProgressDrawer {
     public enum ProgressType {
@@ -24,30 +29,51 @@ public class ProgressDrawer {
     Rectangle backgroundRect;
     Rectangle barRect;
 
-    private void drawPercentText(Graphics g) {
-        g = g.create();
+    private BufferedImage backgroundImage;
+    private BufferedImage progressBarImage;
 
-        var font = Fonts.GetFreeSansBold().deriveFont(18f);
+    public ProgressDrawer(BufferedImage backgroundImage) {
+        this.backgroundImage = backgroundImage;
 
-        FontMetrics metrics = g.getFontMetrics(font);
-        double x = backgroundRect.x + (backgroundRect.width - metrics.stringWidth(text)) / 2.0;
-        double y = backgroundRect.y + ((backgroundRect.height - metrics.getHeight()) / 2.0) + metrics.getAscent();
-        g.setFont(font);
+        var path = Paths.get(".", "resources", "dm_loading_bar.png");
 
-        // String percentText = "" + Math.round(percent * 100) + "%";
-        g.setColor(foreground);
-        g.drawString(text, (int)x, (int)y + 1);
-        g.clipRect(barRect.x, barRect.y, barRect.width, barRect.height);
-        g.setColor(background);
-        g.drawString(text, (int)x, (int)y + 1);
+        try {
+            progressBarImage = ImageIO.read(path.toFile());
+        } catch(IOException e) {
+            System.err.println("Couldn't load image: " + path + "\nWill now exit.");
+            System.exit(1);
+        }
     }
 
-    private void draw2(Graphics g) {
-        g.setColor(background);
-        g.fillRect(backgroundRect.x, backgroundRect.y, backgroundRect.width, backgroundRect.height);
+    private void drawPercentText(Graphics2D g) {
+        var font = Fonts.GetRoboto().deriveFont(18f);
 
-        g.setColor(foreground);
-        g.fillRect(barRect.x, barRect.y, barRect.width, barRect.height);
+        FontMetrics metrics = g.getFontMetrics(font);
+
+        int strWidth = metrics.stringWidth(text);
+        double x = backgroundImage.getWidth() / 2.0 - strWidth / 2.0;
+        double y = 586;
+
+        g.setFont(font);
+
+        g.setColor(Color.black);
+        g.drawString(text, (int)x, (int)y);
+    }
+
+    private void draw2(Graphics2D g) {
+        var t = g.getTransform();
+
+        try {
+            g.drawImage(backgroundImage, 0, 0, null);
+
+            g.translate(26, 438);
+
+            g.clipRect(0, 0, Math.round(progressBarImage.getWidth() * this.percent), progressBarImage.getHeight());
+            g.drawImage(progressBarImage, 0, 0, null);
+            g.setClip(null);
+        } finally {
+            g.setTransform(t);
+        }
 
         drawPercentText(g);
     }
@@ -57,27 +83,8 @@ public class ProgressDrawer {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            draw2(g2);
         }
-
-        this.width = width;
-        this.height = height;
-
-        // backgroundRect = new Rectangle(0, height - 25, width, 25);
-        backgroundRect = new Rectangle(52, 481, 496, 28);
-
-        switch(progressType) {
-            case PERCENT: {
-                barRect = new Rectangle(backgroundRect.x, backgroundRect.y, Math.round(backgroundRect.width * percent), backgroundRect.height);
-                break;
-            }
-            case INDETERMINATE: {
-                int x = Math.round(backgroundRect.x + (percent * (backgroundRect.width * (1 - indeterminateWidth))));
-                barRect = new Rectangle(x, backgroundRect.y, Math.round(backgroundRect.width * indeterminateWidth), backgroundRect.height);
-                break;
-            }
-        }
-
-        draw2(g);
     }
 
     public void setIndeterminatePercent(float percent) {

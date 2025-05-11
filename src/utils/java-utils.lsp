@@ -37,3 +37,6 @@
 
 (defmacro runnable (error-name &rest forms)
   `(jinterface-implementation "java.lang.Runnable" "run" (lambda () (handle-errors ,@forms)))) ;  (handler-case (progn ,@forms) (condition (c) (format t "[CL-ERR] Error in ~A: ~A~%" ,error-name c))))))
+
+(defun wait (seconds)
+  (jstatic "sleep" "java.lang.Thread" (* seconds 1000)))
