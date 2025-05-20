@@ -14,7 +14,8 @@
     jfile
     jinstance-of jcheck-type
     invoke-and-wait
-    handle-errors package standard-package del-package))
+    handle-errors package standard-package del-package
+    run-fn))
 
 (in-package :globals)
 
@@ -70,3 +71,16 @@
 
 (defmacro standard-package (name &rest exports)
   `(package ,name (:use :cl :java) (:export ,@exports)))
+
+(defun run-fn (pkg-name fn-name &rest args)
+  "Looks up function FN-NAME in package PKG-NAME, then runs it."
+  (check-type pkg-name string)
+  (check-type fn-name string)
+
+  (let ((pkg (find-package (jcall "toUpperCase" pkg-name))))
+    (when (not pkg)
+      (error (format-string "Couldn't find package: ~S")))
+    (let ((func (intern (jcall "toUpperCase" fn-name) pkg)))
+      (when (not func)
+        (error (format-string "Couldn't find function: ~S")))
+      (apply #'funcall func args))))

@@ -78,8 +78,9 @@
 (defun src-files ()
   '("src/version.lsp"
     "src/utils/java-utils.lsp"
-    "src/utils/file-utils.lsp"
     "src/utils/list-utils.lsp"
+    "src/utils/string-utils.lsp"
+    "src/utils/file-utils.lsp"
     "src/utils/misc-utils.lsp"
     "src/utils/swing-utils.lsp"
 
@@ -103,7 +104,8 @@
     "src-build/build-main.lsp"))
 
 (defun test-files ()
-  '("src-test/test.lsp"))
+  '("src-test/test-lib.lsp"
+    "src-test/test.lsp"))
 
 (defun load-files (with-ui &rest files)
   (load-with-progress with-ui files)
