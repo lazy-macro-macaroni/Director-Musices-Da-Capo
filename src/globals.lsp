@@ -51,7 +51,8 @@
                                    (loop for bt in (sys:backtrace) do (setf backtrace (concatenate 'string backtrace (print-trace-line (jcall "toLispString" bt))))))))
          (progn ,form ,success))
        (error (c)
-         (jcall "print" (jfield "java.lang.System" "err") (format nil "~A~%Error: ~A~%  In file: ~A~%  Backtrace:~%~A" ,error-prefix c filename backtrace))
+         (jcall "print" (jfield "java.lang.System" "err")
+           (format nil "~AError: ~A~%  In file: ~A~%  Backtrace:~%~A" (format nil (or ,error-prefix "")) c filename backtrace))
          ,failure))))
 
 ;; PACKAGES

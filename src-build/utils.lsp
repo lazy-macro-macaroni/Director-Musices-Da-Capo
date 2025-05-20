@@ -214,7 +214,7 @@
     (progn
       (globals:print "~A..." ,task-text)
       ,@forms)
-    :error-prefix (globals:format-string "FAIL~%")
+    :error-prefix (globals:format-string "FAIL~%~%")
     :success (globals:println "OK")
     :failure
     (java-utils:exit 1)))
