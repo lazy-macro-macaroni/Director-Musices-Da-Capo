@@ -1,40 +1,57 @@
 
-(globals:standard-package :test-lib :main :test-fn :run-tests)
+(globals:standard-package :test-lib :test-equal :tests :test-fn :test-class :test-method :test-macro :run-tests)
 
 (define-condition test-failed (error) ())
 
+(defmacro test-equal (form1 form2)
+  `(let ((val1 ,form1)
+         (val2 ,form2))
+    (if (equal val1 val2)
+      T
+      (progn
+        (format t "~%FAILED: Values not equal.~%  Form 1: ~S~%   Value: ~S~%  Form 2: ~S~%   Value: ~S~%" ',form1 val1 ',form2 val2)
+        (error 'test-failed)))))
+
 (defmacro tests (&rest forms)
   `(block run-until-false
-     ,@(loop for form in forms
-             collect `(unless ,form
-                        (format t "~%FAILED: ~S~%~%" ',form)
-                        (error 'test-failed)
-                        (return-from run-until-false nil)))))
+    ,@(loop for form in forms
+            collect `(let ((val ,form))
+                      (unless val
+                        (format t "~%FAILED: Didn't return a truthful value.~%   Form: ~S~%  Value: ~S~%" ',form val)
+                          (error 'test-failed))))
+    t)) ; Return t for easier nesting
 
-(defmacro test-fn (fn-name &rest forms)
+(defmacro test-with-prefix (prefix fn-name &rest forms)
   `(progn
-     (globals:println "  Testing function ~A" (string-utils:uppercase ,fn-name))
+     (globals:println "  Testing ~A ~A" ,prefix (string-utils:uppercase ,fn-name))
      (tests ,@forms)))
 
+(defmacro test-fn (fn-name &rest forms)
+  `(test-with-prefix "function" ,fn-name ,@forms))
+
+(defmacro test-class (fn-name &rest forms)
+  `(test-with-prefix "class" ,fn-name ,@forms))
+
+(defmacro test-method (fn-name &rest forms)
+  `(test-with-prefix "method" ,fn-name ,@forms))
+
+(defmacro test-macro (fn-name &rest forms)
+  `(test-with-prefix "macro" ,fn-name ,@forms))
+
 (defun run-test-file2 (file pkg-name)
-  (handler-case
-    (progn
-      (load (file-utils:file-to-string file))
-      t)
-    (test-failed (e) nil)))
+  (load (file-utils:file-to-string file)))
 
 (defun run-test-file (file)
   (let* ((pkg-name (string-upcase (file-utils:file-name-no-extension file))))
     (globals:println "Testing file ~A" pkg-name)
-    (globals:handle-errors
-      (run-test-file2 file pkg-name)
-      :error-prefix "  Failed!~%"
-      )))
+    (run-test-file2 file pkg-name)))
 
 (defun run-tests ()
-  (loop for file in (file-utils:list-files (file-utils:jfile "." "src-test"))
-    for name = (file-utils:file-name file)
-    when (not (string= "test.lsp" name))
-    when (not (string= "test-lib.lsp" name))
-    when (string-utils:ends-with-p name ".lsp")
-    do (run-test-file file)))
+  (handler-case
+    (loop for file in (file-utils:list-files (file-utils:jfile "." "src-test"))
+      for name = (file-utils:file-name file)
+      when (string-utils:ends-with-p name ".lsp")
+      when (not (string= "test-lib.lsp" name))
+      when (not (string= "test-main.lsp" name))
+      do (run-test-file file))
+    (test-failed (e) nil)))
