@@ -84,6 +84,9 @@
     "src/utils/misc-utils.lsp"
     "src/utils/swing-utils.lsp"
 
+    "src/utils/ini/ini-definition.lsp"
+    "src/utils/ini/ini-file.lsp"
+
     "src/ui/glue.lsp"
     "src/ui/score.lsp"
     "src/ui/player.lsp"
