@@ -2,7 +2,7 @@
 (globals:standard-package :build-main :main)
 
 (defvar *build-option-min* 1)
-(defvar *build-option-max* 8)
+(defvar *build-option-max* 7)
 
 (defun run-program ()
   (load "src/init.lsp")
@@ -28,7 +28,6 @@
     (5 (build-build:build-windows))
     (6 (build-build:build-macos-m-chip))
     (7 (build-build:build-macos-intel))
-    (8 (test:main))
     (otherwise (globals:println "Unknown option: ~A" build-option))))
 
 (defun run-option (build-option)
@@ -65,7 +64,6 @@
             "~%  5. Build for windows."
             "~%  6. Build for macos (m-chip)."
             "~%  7. Build for macos (intel)."
-            "~%  8. Run tests."
             "~%"
             (format nil "~%Please enter option (~A - ~A): " *build-option-min* *build-option-max*)))
         (finish-output)

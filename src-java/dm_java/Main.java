@@ -171,6 +171,16 @@ public class Main {
             return;
         }
 
+        if (argv.length == 1 && "--test".equals(argv[0])) {
+            System.out.print("Loading lisp interpreter...");
+            loadInterpreter(false);
+            System.out.println("OK");
+            loadFile("src-test/test-main.lsp");
+            if (LoadingError.ErrorHappened) System.exit(1);
+            runFunction("test-main", "main");
+            return;
+        }
+
         System.out.println("Bad arguments. Run with --help for help.");
     }
 }

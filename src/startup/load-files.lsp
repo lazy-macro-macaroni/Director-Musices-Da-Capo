@@ -104,9 +104,9 @@
     "src-build/build-main.lsp"))
 
 (defun test-files ()
-  '("src-test/test-lib.lsp"
-    "src-test/test.lsp"))
+  '("src-test/test-lib.lsp"))
 
 (defun load-files (with-ui &rest files)
-  (load-with-progress with-ui files)
-  (jstatic "sleep" "java.lang.Thread" 200))
+  (let ((result (load-with-progress with-ui files)))
+    (jstatic "sleep" "java.lang.Thread" 200)
+    result))

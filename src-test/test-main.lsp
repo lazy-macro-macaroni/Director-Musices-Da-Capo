@@ -1,5 +1,5 @@
 
-(globals:standard-package :test :main)
+(globals:standard-package :test-main :main)
 
 (defun reload-files ()
   (load "src/startup/load-files.lsp")
@@ -24,14 +24,13 @@
 (defun main ()
   (loop
     do
-    (globals:println "Running tests.")
+    (globals:println "~%Running tests.")
 
     (globals:handle-errors
-      (progn
-        (reload-files)
+      (when (reload-files)
         (globals:run-fn "test-lib" "run-tests")
       )
     )
 
-    (if (not (get-yn "Again?" t))
+    (if (not (get-yn (globals:format-string "~%Again?") t))
       (return))))
