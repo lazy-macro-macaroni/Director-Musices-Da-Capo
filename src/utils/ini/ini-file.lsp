@@ -1,5 +1,5 @@
 
-(globals:standard-package :ini-file :create :get-setting :set-setting :close-file :read-ini-from-file :read-ini-from-string :set-files :get-files :add-file)
+(globals:standard-package :ini-file :create :get-setting :set-setting :close-file :read-ini-from-file :read-ini-from-string :save-ini-to-file :save-ini-to-string :set-files :get-files :add-file)
 
 ;; Matchers
 
@@ -87,13 +87,28 @@
   (java-utils:jcheck-type file "java.io.File")
 
   (setf (buffered-reader obj) (jnew "java.io.BufferedReader" (jnew "java.io.FileReader" file)))
-  (parse obj))
+  (unwind-protect
+    (parse obj)
+    (close-file obj)))
 
 (defmethod read-ini-from-string ((obj ini-file) str)
   (check-type str string)
 
   (setf (buffered-reader obj) (jnew "java.io.BufferedReader" (jnew "java.io.StringReader" str)))
-  (parse obj))
+  (unwind-protect
+    (parse obj)
+    (close-file obj)))
+
+(defmethod save-ini-to-file ((obj ini-file) file)
+  (java-utils:jcheck-type file "java.io.File")
+
+  (let ((file-writer (jnew "java.io.FileWriter" file)))
+    (save obj file-writer)))
+
+(defmethod save-ini-to-string ((obj ini-file))
+  (let ((string-writer (jnew "java.io.StringWriter")))
+    (save obj string-writer)
+    (jcall "toString" string-writer)))
 
 ;; Parsing
 
@@ -151,7 +166,7 @@
   (when (match-multiline-start value-str)
     (setf value-str (get-lines-until-match obj #'match-multiline-end)))
 
-  (set-setting obj name (ini-definition:convert-string (definition obj) name value-str)))
+  (set-setting obj name (ini-definition:string-to-value (definition obj) name value-str)))
 
 (defmethod parse-setting-line ((obj ini-file) line)
   (let ((m (match-setting line)))
@@ -180,3 +195,42 @@
           ;   (let ((m (match-setting line)))
           ;     (if m
           ;       (parse-setting obj (car m) (car (cdr m)))))))
+
+;; Saving
+
+(defun write-line (writer line)
+  (jcall "write" writer line)
+  (jcall "newLine" writer))
+
+(defmethod save-settings ((obj ini-file) writer)
+  (loop for key in (ini-definition:get-setting-keys (definition obj))
+    do
+    (write-line writer (globals:format-string "~A=~A" key (ini-definition:value-to-string (definition obj) key (get-setting obj key))))
+  ))
+
+    ; (globals:println "Got key: ~S" key)))
+
+(defmethod save-files ((obj ini-file) writer)
+  (loop for key in (ini-definition:get-file-keys (definition obj))
+    do
+    (loop for file in (get-files obj key)
+      do
+      (write-line writer "")
+      (write-line writer (globals:format-string "==== FILE: ~A ====" key))
+      (write-line writer file)
+      (write-line writer (globals:format-string "==== ENDFILE: ~A ====" key)))))
+
+(defmethod save ((obj ini-file) in-writer)
+  (let ((writer (jnew "java.io.BufferedWriter" in-writer)))
+    (unwind-protect
+      (progn
+        (write-line writer "INIFILE")
+        (write-line writer "")
+
+        (save-settings obj writer)
+        (save-files obj writer)
+
+        (write-line writer ""))
+      (progn
+        (jcall "flush" writer)
+        (jcall "close" writer)))))

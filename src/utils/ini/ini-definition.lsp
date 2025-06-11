@@ -1,9 +1,9 @@
 
 (globals:standard-package :ini-definition
   :create :name :setting-type :default-value :settings :files
-  :add-setting :get-setting :get-setting-type :get-setting-default-value
-  :add-file :has-file
-  :parse-settings :convert-string :validate-value)
+  :add-setting :get-setting :get-setting-keys :get-setting-type :get-setting-default-value
+  :add-file :has-file :get-file-keys
+  :parse-settings :string-to-value :value-to-string :validate-value)
 
 (defclass ini-definition-setting ()
   ((name :initarg :name :accessor name)
@@ -51,6 +51,11 @@
       (error "Setting with name ~S doesn't exist." name))
     setting))
 
+(defmethod get-setting-keys ((obj ini-definition))
+  (let (keys)
+    (maphash (lambda (key value) (push key keys)) (settings obj))
+    keys))
+
 (defmethod get-setting-type ((obj ini-definition) name)
   (setf name (misc-utils:to-keyword name))
   (setting-type (get-setting obj name)))
@@ -75,12 +80,15 @@
     t
     (error "File with name ~S isn't defined." file-name)))
 
+(defmethod get-file-keys ((obj ini-definition))
+  (files obj))
+
 ;; Conversion / Validation ;;
 
 (string-utils:define-matcher match-int-string "\\s*[0-9]+\\s*")
 (string-utils:define-matcher match-float-string "\\s*[0-9]+\\.[0-9]+\\s*")
 
-(defmethod convert-string ((obj ini-definition) name str)
+(defmethod string-to-value ((obj ini-definition) name str)
   (setf name (misc-utils:to-keyword name))
   (let ((wanted-type (setting-type (get-setting obj name))))
     (case wanted-type
@@ -96,6 +104,22 @@
           (parse-integer str)
           (error "Setting ~A expects an integer value, but ~S can't be converted." name str)))
       (:form (read-from-string str))
+      (otherwise (error "Type is unknown: ~A, for name: ~A" wanted-type name)))))
+
+(defmethod value-to-string ((obj ini-definition) name value)
+  (setf name (misc-utils:to-keyword name))
+
+  (validate-value obj name value)
+
+  (let ((wanted-type (setting-type (get-setting obj name))))
+    (case wanted-type
+      (:string
+        (if (string-utils:contains-p value string-utils:*newline*)
+          (globals:format-string "{{{~%~A~%}}}" value)
+        value))
+      (:float (globals:format-string "~S" value))
+      (:int (globals:format-string "~S" value))
+      (:form (globals:format-string "~S" value))
       (otherwise (error "Type is unknown: ~A, for name: ~A" wanted-type name)))))
 
 (defmethod validate-value ((obj ini-definition) name value)

@@ -1,5 +1,7 @@
 
-(globals:standard-package :string-utils :starts-with-p :ends-with-p :alphanumeric-p :remove-suffix :split :split-string-on-char :uppercase :join-strings :regex-matcher :match :match-once :define-matcher)
+(globals:standard-package :string-utils :*newline* :starts-with-p :ends-with-p :contains-p :alphanumeric-p :remove-suffix :split :split-string-on-char :uppercase :join-strings :regex-matcher :match :match-once :define-matcher)
+
+(defparameter *newline* (globals:format-string "~%"))
 
 (defun starts-with-p (str prefix)
   "Checks if STR starts with PREFIX."
@@ -18,6 +20,10 @@
   (let ((suffix-length (length suffix)))
     (and (>= (length str) suffix-length) ; Ensure str is long enough
          (string= (subseq str (- (length str) suffix-length)) suffix))))
+
+(defun contains-p (string substring)
+  "Return T if SUBSTRING is found in STRING, else NIL."
+  (search substring string :test #'char-equal))
 
 (defun alphanumeric-char-p (char)
   "Checks if a character is alphanumeric."

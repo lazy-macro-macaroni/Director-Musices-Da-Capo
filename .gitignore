@@ -1,3 +1,4 @@
 /build/
 /build-temp/
 *~lock~
+/src-test/utils/testini-testsave.ini
