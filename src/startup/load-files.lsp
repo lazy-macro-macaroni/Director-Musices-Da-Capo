@@ -22,7 +22,6 @@
       and index from 1 do
       (handler-case
         (let ((loading-message (format nil "Loading: ~A~%" path)))
-          ; (format t loading-message)
           (if with-ui
             (jstatic "setPercentage" "dm_java.ProgressManager" loading-message (float (/ index count))))
           (load path))
@@ -82,7 +81,13 @@
     "src/utils/string-utils.lsp"
     "src/utils/file-utils.lsp"
     "src/utils/misc-utils.lsp"
-    "src/utils/swing-utils.lsp"
+
+    "src/swing/dialogs.lsp"
+    "src/swing/menu.lsp"
+    "src/swing/threads.lsp"
+    "src/swing/tree.lsp"
+
+    "src/window/calculate-window-size.lsp"
 
     "src/utils/ini/ini-definition.lsp"
     "src/utils/ini/ini-file.lsp"
@@ -90,12 +95,9 @@
     "src/ui/glue.lsp"
     "src/ui/score.lsp"
     "src/ui/player.lsp"
+    "src/ui/help.lsp"
     "src/ui/menu.lsp"
 
-    "src/window/calculate-window-size.lsp"
-    "src/window/main-window.lsp"
-
-    "src/ui/main.lsp"
     "src/main.lsp"))
 
 (defun build-files ()
@@ -111,5 +113,4 @@
 
 (defun load-files (with-ui &rest files)
   (let ((result (load-with-progress with-ui files)))
-    (jstatic "sleep" "java.lang.Thread" 200)
     result))

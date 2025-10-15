@@ -37,6 +37,12 @@ Some notes how to use ABCL.
     Example:
     (jfield "javax.swing.JFileChooser" "APPROVE_OPTION")
 
+* Instance field
+    Instance field, i.e. a class variable in a class instance. It has weird syntax.
+    (jfield "<class>" "<name>" <instance>)
+
+    (jfield "java.awt.Dimension" "width" dim)
+
 * Static method
     (jstatic "<name>" "<class>") ; Yes... this is opposite jfield lol...
 
@@ -54,6 +60,13 @@ Some notes how to use ABCL.
 
     Example:
     (jnew "java.awt.Point" (round 3.3) (round 4.5))
+
+* Inner Classes
+    If a class is an inner class, use $ instead of . to reference it.
+
+    For example "EventType" is an inner class inside "javax.swing.event.HyperlinkEvent",
+    so it's referenced by the name "javax.swing.event.HyperlinkEvent$EventType",
+    use this name inside jfield and such.
 
 * Arrays
     New array:
@@ -78,3 +91,6 @@ Some notes how to use ABCL.
 
     Check if array:
         (jclass-array-p <array>)
+
+* Implement interface
+    (jinterface-implementation "<interface>" "<function>" (lambda () ...))

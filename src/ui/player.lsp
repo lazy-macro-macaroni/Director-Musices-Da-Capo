@@ -1,9 +1,5 @@
 
-(defpackage :ui-player
-  (:use :cl :java)
-  (:export :choose-file))
-
-(in-package :ui-player)
+(globals:standard-package :ui-player)
 
 ; (ns director-musices.player
 ;   (:use [director-musices.glue :only [save-midi-to-path]]

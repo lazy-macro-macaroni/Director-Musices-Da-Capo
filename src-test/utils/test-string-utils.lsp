@@ -44,6 +44,12 @@
   (test-lib:test-equal (car (split-string-on-char "a,b,c" #\, :from-end t)) "a,b")
 )
 
+(test-lib:test-fn "split-string-on-all-char"
+  (test-lib:test-equal (split-string-on-all-char "a,b" #\,) '("a" "b"))
+  (test-lib:test-equal (split-string-on-all-char "ab" #\,) '("ab"))
+  (test-lib:test-equal (split-string-on-all-char "a,b,c" #\,) '("a" "b" "c"))
+)
+
 (test-lib:test-fn "uppercase"
   (test-lib:test-equal (uppercase "hello") "HELLO")
 )

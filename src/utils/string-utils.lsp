@@ -1,5 +1,8 @@
 
-(globals:standard-package :string-utils :*newline* :starts-with-p :ends-with-p :contains-p :alphanumeric-p :remove-suffix :split :split-string-on-char :uppercase :join-strings :regex-matcher :match :match-once :define-matcher)
+(globals:standard-package :string-utils
+  :*newline* :starts-with-p :ends-with-p :contains-p :alphanumeric-p :remove-suffix :split
+  split-string-on-char split-string-on-all-char
+  :uppercase :join-strings :regex-matcher :match :match-once :define-matcher)
 
 (defparameter *newline* (globals:format-string "~%"))
 
@@ -72,6 +75,19 @@ and cdr is the part after CHAR."
         (cons (subseq str 0 index)
               (subseq str (1+ index)))
         (cons str nil))))  ;; If CHAR not found, return entire string in car
+
+(defun split-string-on-all-char (string char)
+  "Split STRING on every occurence of CHAR and return it as a list."
+  (let ((result '())
+        (start 0)
+        (len (length string)))
+    (loop for i from 0 below len
+          do (if (char= (aref string i) char)
+                 (progn
+                   (push (subseq string start i) result)
+                   (setf start (1+ i)))))
+    (push (subseq string start len) result)
+    (nreverse result)))
 
 (defun uppercase (str)
   "Converts STR to upper case."

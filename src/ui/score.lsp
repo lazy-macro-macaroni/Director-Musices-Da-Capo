@@ -201,7 +201,7 @@
   )
 
 (defun choose-and-open-score ()
-  (let ((file (swing-utils:choose-file "Score Files" '("mus"))))
+  (let ((file (swing-dialogs:choose-file "Score Files" '("mus"))))
     (if file (load-new-score-with (lambda () (ui-glue:load-active-score-from-file (jcall "getAbsolutePath" file)))))))
 
 ; (defn choose-and-open-score [& _]

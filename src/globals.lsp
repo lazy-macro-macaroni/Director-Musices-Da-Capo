@@ -10,11 +10,11 @@
   (:use :cl :java)
   (:export
     format-string println print
+    get-main-window set-main-window
     run-in-thread
     jfile
     jinstance-of jcheck-type
-    invoke-and-wait
-    handle-errors package standard-package del-package
+    handle-errors safe-lambda package standard-package del-package
     run-fn))
 
 (in-package :globals)
@@ -35,6 +35,16 @@
     (finish-output) ; flush output. Necessary when not printing newline
     s))
 
+;; MAIN WINDOW ;;
+
+(defparameter *main-window* nil)
+
+(defun get-main-window ()
+  *main-window*)
+
+(defun set-main-window (window)
+  (setf *main-window* window))
+
 ;; ERRORS
 
 (defun print-trace-line (line)
@@ -42,7 +52,7 @@
     ""
     (format nil "    ~A~%" line)))
 
-(defmacro handle-errors (form &key success &key failure &key error-prefix)
+(defmacro handle-errors (form &key success &key failure &key error-prefix &key callback-name)
   `(let ((filename "")
          (backtrace ""))
      (handler-case
@@ -52,9 +62,19 @@
                                    (loop for bt in (sys:backtrace) do (setf backtrace (concatenate 'string backtrace (print-trace-line (jcall "toLispString" bt))))))))
          (progn ,form ,success))
        (error (c)
-         (jcall "print" (jfield "java.lang.System" "err")
-           (format nil "~AError: ~A~%  In file: ~A~%  Backtrace:~%~A" (format nil (or ,error-prefix "")) c filename backtrace))
+         (let* ((callback-message ,(if (not (eq callback-name nil)) (format-string "  Callback: ~A~%" callback-name) ""))
+                (message (format-string "~AError: ~A~%  In file: ~A~%~A  Backtrace:~%~A" (format nil (or ,error-prefix "")) c filename callback-message backtrace)))
+          (jcall "print" (jfield "java.lang.System" "err") message)
+          (when (not (eq (get-main-window) nil))
+            (jstatic "ShowError" "dm_java.ErrorDialog" "Error!" "Unknown Error" "There was an unknown error. See details below" message)))
          ,failure))))
+
+(defmacro safe-lambda (name args &rest forms)
+  (check-type name string)
+  (check-type args list)
+
+  `(lambda ,args
+    (handle-errors (progn ,@forms) :callback-name ,name)))
 
 ;; PACKAGES
 

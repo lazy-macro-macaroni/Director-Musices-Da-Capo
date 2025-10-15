@@ -31,7 +31,7 @@
     ((jcall "isDirectory" path)
       ; (globals:println "Deleting directory: ~A" (jcall "getPath" path))
       (let ((contents (jcall "listFiles" path)))
-        (if (not contents) (return-from delete-path2))
+        (if (= (length contents) 0) (return-from delete-path2))
         (loop
           for item across contents ;in (coerce contents 'list)
           when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
@@ -70,7 +70,7 @@
       ((jcall "isDirectory" input-file)
         ; (globals:println "Deleting directory: ~A" (jcall "getPath" path))
         (let ((contents (jcall "listFiles" input-file)))
-          (if (not contents) (return-from copy-path2))
+          (if (= (length contents) 0) (return-from copy-path2))
           (loop
             for item across contents ;in (coerce contents 'list)
             when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
@@ -121,7 +121,7 @@
        (zip-file zip-stream input-file process-file current))
       ((jcall "isDirectory" input-file)
         (let ((contents (jcall "listFiles" input-file)))
-          (if (not contents) (return-from zip2))
+          (if (= (length contents) 0) (return-from zip2))
           (loop
             for item across contents ;in (coerce contents 'list)
             when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
@@ -183,7 +183,7 @@
        (tar-file tar-stream input-file process-file current))
       ((jcall "isDirectory" input-file)
         (let ((contents (jcall "listFiles" input-file)))
-          (if (not contents) (return-from tar-gz2))
+          (if (= (length contents) 0) (return-from tar-gz2))
           (loop
             for item across contents ;in (coerce contents 'list)
             when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))

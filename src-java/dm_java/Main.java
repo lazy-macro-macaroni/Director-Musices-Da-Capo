@@ -130,10 +130,10 @@ public class Main {
     public static void main(String[] argv) throws Exception {
         if (argv.length == 0 || (argv.length == 1 &&  "--run".equals(argv[0]))) {
             loadInterpreter(true);
-            ProgressManager.setPercentage("Loading Init File", 0);
+            ProgressManager.setPercentage("Loading...", 0);
             loadFile("src/init.lsp");
             if (LoadingError.ErrorHappened) System.exit(1);
-            ProgressManager.setPercentage("Running Init", 0);
+            ProgressManager.setPercentage("Starting...", 1);
             runFunction("main", "main");
             return;
         }

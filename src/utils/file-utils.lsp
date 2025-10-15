@@ -2,7 +2,7 @@
 (globals:standard-package :file-utils
   :jpath :jfile :path-exists :directory-exists :file-exists :file-to-string :file-is-same :file-is-parent :file-name
   :file-name-no-extension
-  :read-from-file :save-to-file :list-files)
+  :read-from-file read-lines-from-file :save-to-file :list-files)
 
 (defun jpath (path &rest paths)
   (let ((out (cond
@@ -61,6 +61,10 @@
 
 (defun read-from-file (file)
   (java-utils:jcheck-type file "java.io.File")
+  (jstatic "readString" "java.nio.file.Files" (jpath file)))
+
+(defun read-lines-from-file (file)
+  (java-utils:jcheck-type file "java.io.File")
   (java-utils:array-to-list (jcall-raw "toArray" (jstatic-raw "readAllLines" "java.nio.file.Files" (jpath file)))))
 
 (defun save-to-file (file content)
@@ -85,7 +89,7 @@
     ((jcall "isFile" path) (list path))
     ((jcall "isDirectory" path)
       (let ((contents (jcall "listFiles" path)))
-        (if (not contents) (return-from list-files2))
+        (if (= (length contents) 0) (return-from list-files2))
         (loop
           for item across contents
           when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
