@@ -32,7 +32,7 @@
     (item-if-score menu "Export Rulepalette..." #'rulepalette-manage:export-rulepalette-dialog)
 
     (swing-menu:separator menu)
-    (swing-menu:item menu "Quit" (lambda () (java-utils:exit 0)) :keyboard-shortcut #\Q)))
+    (swing-menu:item menu "Quit" (lambda () (if (project-current:ensure-project-saved) (java-utils:exit 0))) :keyboard-shortcut #\Q)))
 
 ;; EDIT MENU ;;
 

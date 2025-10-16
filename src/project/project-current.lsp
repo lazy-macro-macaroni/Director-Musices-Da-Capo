@@ -1,5 +1,5 @@
 
-(globals:standard-package :project-current load-dialog save-dialog save-current-file)
+(globals:standard-package :project-current load-dialog save-dialog save-current-file ensure-project-saved)
 
 (defparameter *current-project* nil)
 
@@ -36,4 +36,5 @@
   (save-dialog))
 
 (defun ensure-project-saved ()
-  (globals:println "Not implemented: project-current:ensure-project-saved"))
+  (globals:println "Not implemented: project-current:ensure-project-saved")
+  t)
