@@ -63,16 +63,16 @@
     (cons (jnew "javax.swing.JScrollPane" tree) (jnew "javax.swing.JScrollPane" editor-pane))))
 
 (defun open-help ()
-  (let* ((frame (swing-frame:create-frame "DM Help"))
+  (let* ((frame (jnew "javax.swing.JDialog" (globals:get-main-window) "DM Help"))
          (tree (create-tree))
-         (split-pane (jnew "javax.swing.JSplitPane" (jfield "javax.swing.JSplitPane" "HORIZONTAL_SPLIT")  (car tree) (cdr tree)))
+         (split-pane (jnew "javax.swing.JSplitPane" (jfield "javax.swing.JSplitPane" "HORIZONTAL_SPLIT") (car tree) (cdr tree)))
          (label (jnew "javax.swing.JLabel" "")))
 
-    (swing-frame:set-icons frame
-      (file-utils:jfile "." "resources" "icon_help" "icon_help64.png")
-      (file-utils:jfile "." "resources" "icon_help" "icon_help128.png")
-      (file-utils:jfile "." "resources" "icon_help" "icon_help256.png")
-      (file-utils:jfile "." "resources" "icon_help" "icon_help512.png"))
+    ; (swing-frame:set-icons frame
+    ;   (file-utils:jfile "." "resources" "icon_help" "icon_help64.png")
+    ;   (file-utils:jfile "." "resources" "icon_help" "icon_help128.png")
+    ;   (file-utils:jfile "." "resources" "icon_help" "icon_help256.png")
+    ;   (file-utils:jfile "." "resources" "icon_help" "icon_help512.png"))
 
     (jcall "setOneTouchExpandable" split-pane nil)
 
