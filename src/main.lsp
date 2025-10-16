@@ -4,10 +4,16 @@
 (defun main2 ()
   (jstatic "sleep" "java.lang.Thread" 200)
   (jstatic "hide" "dm_java.ProgressManager")
-  (let ((frame (jnew "javax.swing.JFrame" "Director-Musices"))
+  (let ((frame (swing-frame:create-frame "Director-Musices"))
         (label (jnew "javax.swing.JLabel" "")))
 
     (globals:set-main-window frame)
+
+    (swing-frame:set-icons frame
+      (file-utils:jfile "." "resources" "icon" "icon64.png")
+      (file-utils:jfile "." "resources" "icon" "icon128.png")
+      (file-utils:jfile "." "resources" "icon" "icon256.png")
+      (file-utils:jfile "." "resources" "icon" "icon512.png"))
 
     (jcall "setJMenuBar" frame (ui-menu::create-menu))
     (jcall "add" frame label)

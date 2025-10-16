@@ -86,6 +86,7 @@
     "src/swing/menu.lsp"
     "src/swing/threads.lsp"
     "src/swing/tree.lsp"
+    "src/swing/frame.lsp"
 
     "src/window/calculate-window-size.lsp"
 

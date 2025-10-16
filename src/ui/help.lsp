@@ -63,10 +63,16 @@
     (cons (jnew "javax.swing.JScrollPane" tree) (jnew "javax.swing.JScrollPane" editor-pane))))
 
 (defun open-help ()
-  (let* ((frame (jnew "javax.swing.JFrame" "DM Help"))
+  (let* ((frame (swing-frame:create-frame "DM Help"))
          (tree (create-tree))
          (split-pane (jnew "javax.swing.JSplitPane" (jfield "javax.swing.JSplitPane" "HORIZONTAL_SPLIT")  (car tree) (cdr tree)))
          (label (jnew "javax.swing.JLabel" "")))
+
+    (swing-frame:set-icons frame
+      (file-utils:jfile "." "resources" "icon_help" "icon_help64.png")
+      (file-utils:jfile "." "resources" "icon_help" "icon_help128.png")
+      (file-utils:jfile "." "resources" "icon_help" "icon_help256.png")
+      (file-utils:jfile "." "resources" "icon_help" "icon_help512.png"))
 
     (jcall "setOneTouchExpandable" split-pane nil)
 
@@ -77,8 +83,7 @@
     (window-calculate-window-size:set-window-size frame 0.3 0.4)
 
     (swing-threads:invoke-later
-      (jcall "setDividerLocation" split-pane 0.3)
-      (error "OMG!"))
+      (jcall "setDividerLocation" split-pane 0.3))
 
     (jcall "setVisible" frame +TRUE+)
     (jcall "requestFocus" frame)))
