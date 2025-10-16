@@ -6,53 +6,51 @@
 (defun not-implemented ()
   (swing-dialogs:error-dialog "Not implemented!"))
 
-;; EDIT MENU ;;
-
 ; TODO: Grayed out menu item if score is not loaded
 (defun item-if-score (menu title action)
   (let ((mitem (swing-menu:item menu title action)))
-    (jcall "setEnabled" mitem NIL)
+    ; (jcall "setEnabled" mitem NIL)
     mitem))
-
-(defun edit-menu ()
-  (let ((menu (swing-menu:menu "Edit")))
-    (swing-menu:item menu "Tempo" #'not-implemented)
-    menu))
 
 ;; FILE MENU ;;
 
-(defun file-menu ()
-  (let ((menu (swing-menu:menu "File")))
-    (swing-menu:item menu "Open Project..." #'not-implemented)
-    (swing-menu:item menu "Save Project" #'not-implemented)
-    (swing-menu:item menu "Save Project As..." #'not-implemented)
+(defun file-menu (menu-bar)
+  (let ((menu (swing-menu:create-menu menu-bar "File" :keyboard-shortcut #\F)))
+    (swing-menu:item menu "Open Project..." #'project-current:load-dialog :keyboard-shortcut #\O)
+    (swing-menu:item menu "Save Project" #'project-current:save-current-file :keyboard-shortcut #\S)
+    (swing-menu:item menu "Save Project As..." #'project-current:save-dialog :keyboard-shortcut #\S :need-shift t)
 
     (swing-menu:separator menu)
 
-    (swing-menu:item menu "Open Score..." #'ui-score:choose-and-open-score)
-    (item-if-score menu "Export Score..." #'not-implemented)
-    (swing-menu:item menu "Import Score from midi file..." #'not-implemented)
+    (swing-menu:item menu "Open Score..." #'score-manage:open-score-dialog)
+    (swing-menu:item menu "Open Built-In Score..." #'score-select-built-in:open-dialog)
+    (swing-menu:item menu "Import Score from midi file..." #'score-manage:import-midi-dialog)
+    (item-if-score menu "Export Score..." #'score-manage:export-score-dialog)
 
     (swing-menu:separator menu)
-    (item-if-score menu "Open Rule Palette..." #'not-implemented)
-    (item-if-score menu "Export Rule Palette..." #'not-implemented)
+    (swing-menu:item menu "Open Rulepalette..." #'rulepalette-manage:open-rulepalette-dialog)
+    (item-if-score menu "Export Rulepalette..." #'rulepalette-manage:export-rulepalette-dialog)
 
     (swing-menu:separator menu)
-    (swing-menu:item menu "Quit" (lambda () (java-utils:exit 0)))
-    menu))
+    (swing-menu:item menu "Quit" (lambda () (java-utils:exit 0)) :keyboard-shortcut #\Q)))
+
+;; EDIT MENU ;;
+
+(defun edit-menu (menu-bar)
+  (let ((menu (swing-menu:create-menu menu-bar "Edit" :keyboard-shortcut #\E)))
+    (swing-menu:item menu "Tempo" #'not-implemented)))
 
 ;; HELP MENU ;;
 
-(defun help-menu ()
-  (let ((menu (swing-menu:menu "Help")))
-    (swing-menu:item menu "Help Text..." #'ui-help:open-help)
-    menu))
+(defun help-menu (menu-bar)
+  (let ((menu (swing-menu:create-menu menu-bar "Help" :keyboard-shortcut #\H)))
+    (swing-menu:item menu "Help Text..." #'ui-help:open-help :keyboard-shortcut #\H)))
 
 ;; MENU BAR ;;
 
 (defun create-menu ()
-  (let ((menubar (jnew "javax.swing.JMenuBar")))
-    (jcall "add" menubar (file-menu))
-    (jcall "add" menubar (edit-menu))
-    (jcall "add" menubar (help-menu))
-    menubar))
+  (let ((menu-bar (swing-menu:create-menu-bar)))
+    (file-menu menu-bar)
+    ; (edit-menu menu-bar)
+    (help-menu menu-bar)
+    menu-bar))

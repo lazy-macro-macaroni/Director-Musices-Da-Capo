@@ -93,8 +93,16 @@
     "src/utils/ini/ini-definition.lsp"
     "src/utils/ini/ini-file.lsp"
 
+    "src/project/project-data.lsp"
+    "src/project/project-current.lsp"
+
+    "src/score/score-data.lsp"
+    "src/score/score-manage.lsp"
+    "src/score/score-select-built-in.lsp"
+
+    "src/rulepalette/rulepalette-manage.lsp"
+
     "src/ui/glue.lsp"
-    "src/ui/score.lsp"
     "src/ui/player.lsp"
     "src/ui/help.lsp"
     "src/ui/menu.lsp"

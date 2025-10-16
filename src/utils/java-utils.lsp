@@ -1,6 +1,6 @@
 
 (globals:standard-package :java-utils
-  :array-to-list :jinstance-of :jcheck-type :exit :runnable :thread :run-in-thread)
+  :array-to-list list-to-jlist :jinstance-of :jcheck-type :exit :runnable :thread :run-in-thread)
 
 ;; TYPES ;;
 
@@ -19,6 +19,14 @@
   (loop for i from 0 upto (- (jarray-length arr) 1)
     for item = (jarray-ref arr i)
     collect item))
+
+(defun list-to-jlist (type-name l)
+  (check-type type-name string)
+  (check-type l list)
+
+  (jstatic "asList" "java.util.Arrays"
+  (jnew-array-from-list type-name l))
+  )
 
 ;; THREADS ;;
 
