@@ -137,6 +137,15 @@
   <ItemGroup>
     <ClCompile Include="dm_exe.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dm_exe.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon512.png.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
