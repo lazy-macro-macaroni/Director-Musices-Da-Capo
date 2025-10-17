@@ -23,7 +23,7 @@
     (swing-menu:separator menu)
 
     (swing-menu:item menu "Open Score..." #'score-manage:open-score-dialog)
-    (swing-menu:item menu "Open Built-In Score..." #'score-select-built-in:open-dialog)
+    (score-select-built-in:create-menu menu)
     (swing-menu:item menu "Import Score from midi file..." #'score-manage:import-midi-dialog)
     (item-if-score menu "Export Score..." #'score-manage:export-score-dialog)
 
