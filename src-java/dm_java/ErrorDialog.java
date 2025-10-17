@@ -7,6 +7,8 @@ public class ErrorDialog {
     private ErrorDialog() {}
 
     public static void ShowError(String title, String heading, String message, String longMessage) {
+        ProgressManager.hide();
+
         // Title Label
 
         JLabel titleLabel = new JLabel(heading, SwingConstants.LEFT);
