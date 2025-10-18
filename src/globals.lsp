@@ -14,6 +14,8 @@
     run-in-thread
     jfile
     jinstance-of jcheck-type
+    custom-error
+    throw-custom-error
     handle-errors safe-lambda package standard-package del-package
     run-fn))
 
@@ -46,6 +48,17 @@
   (setf *main-window* window))
 
 ;; ERRORS
+
+(defmacro custom-error (symb &key parent)
+  `(define-condition ,symb (,(if (eq parent nil) 'error parent))
+    ((message :initarg :message))
+    (:report (lambda (condition stream)
+              (format stream "[~A] ~A"
+                ',symb
+                (slot-value condition 'message))))))
+
+(defmacro throw-custom-error (err &rest forms)
+  `(error ',err :message (format-string ,@forms)))
 
 (defun print-trace-line (line)
   (if (string= line "(SYSTEM:BACKTRACE)")

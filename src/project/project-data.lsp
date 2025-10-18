@@ -3,6 +3,7 @@
 
 (defparameter *ini-def*
   (ini-definition:create
+    "dm-project"
     '()
     '()))
 

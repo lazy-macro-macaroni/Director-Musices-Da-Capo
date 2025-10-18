@@ -43,15 +43,22 @@
 
 (defmethod get-setting ((obj ini-file) name)
   (setf name (misc-utils:to-keyword name))
+  (ini-definition:validate-name (definition obj) name)
+
   (let ((value (gethash name (settings obj))))
-    (unless value
-      (error "Error getting setting. Setting with name ~A doesn't exist." name))
+    ; Should never happen, since we are validating the name above.
+    (if (eq nil value)
+      (globals:throw-custom-error ini-bad-setting-name-error "Error getting setting. Setting with name ~A doesn't exist." name))
     value))
 
 (defmethod set-setting ((obj ini-file) name value)
   (setf name (misc-utils:to-keyword name))
-  (unless (gethash name (settings obj))
-    (error "Error setting setting. Setting with name ~A doesn't exist. Value: ~S" name value))
+  (ini-definition:validate-name (definition obj) name)
+
+  ; Should never happen, since we are validating the name above.
+  (if (eq nil (gethash name (settings obj)))
+    (globals:throw-custom-error ini-bad-setting-name-error  "Error setting setting. Setting with name ~A doesn't exist. Value: ~S" name value))
+
   (ini-definition:validate-value (definition obj) name value)
   (setf (gethash name (settings obj)) value))
 
@@ -118,7 +125,7 @@
       do
       (progn
         (unless line
-          (error "Reached end of file reading multiline setting."))
+          (globals:throw-custom-error ini-read-error "Reached end of file reading multiline setting."))
         (if (funcall matcher line) (return))
         (if (eq out nil)
           (setf out line)
@@ -147,7 +154,7 @@
               (return (string-utils:join-strings out #\newline)))
 
             (setf out (append out '(line))))
-          finally (error "Reached end of file while parsing file section with name: ~A" name))))
+          finally (globals:throw-custom-error ini-read-error "Reached end of file while parsing file section with name: ~A" name))))
 
 (defmethod parse-file-line ((obj ini-file) line)
   (let ((m (match-file-start line)))
@@ -174,27 +181,33 @@
       (parse-setting obj (car m) (car (cdr m)))
       t)))
 
+(defmethod parse-first-line ((obj ini-file))
+  (let ((line (next-line obj)))
+    (when (eq line nil)
+      (globals:throw-custom-error ini-definition:ini-bad-file-type-error "File is empty."))
+
+    (unless (string= "INIFILE" line)
+      (globals:throw-custom-error ini-definition:ini-bad-file-type-error "File is not an INI file."))))
+
+(defmethod parse-second-line ((obj ini-file))
+  (let ((line (next-line obj)))
+    (when (eq line nil)
+      (globals:throw-custom-error ini-definition:ini-bad-file-type-error "File doesn't have a file type."))
+
+    (ini-definition:validate-file-type (definition obj) line)))
+
 (defmethod parse ((obj ini-file))
-  (let ((first-line (next-line obj)))
-    (when (eq first-line nil)
-      (error "File is empty."))
+  (parse-first-line obj)
+  (parse-second-line obj)
 
-    (unless (string= "INIFILE" first-line)
-      (error "File is not INI file."))
-
-    (loop for line = (next-line obj)
-          while line
-          when (not (match-empty line))
-          do
-          (or
-            (parse-setting-line obj line)
-            (parse-file-line obj line)
-            (error "INI file contains unreadable line: ~S" line)))))
-          ; (progn
-          ;   (globals:println "Got line = ~S" line)
-          ;   (let ((m (match-setting line)))
-          ;     (if m
-          ;       (parse-setting obj (car m) (car (cdr m)))))))
+  (loop for line = (next-line obj)
+    while line
+    when (not (match-empty line))
+    do
+    (or
+      (parse-setting-line obj line)
+      (parse-file-line obj line)
+      (globals:throw-custom-error ini-read-error "INI file contains unreadable line: ~S" line))))
 
 ;; Saving
 
@@ -207,8 +220,6 @@
     do
     (write-line writer (globals:format-string "~A=~A" key (ini-definition:value-to-string (definition obj) key (get-setting obj key))))
   ))
-
-    ; (globals:println "Got key: ~S" key)))
 
 (defmethod save-files ((obj ini-file) writer)
   (loop for key in (ini-definition:get-file-keys (definition obj))
@@ -225,6 +236,7 @@
     (unwind-protect
       (progn
         (write-line writer "INIFILE")
+        (write-line writer (ini-definition:get-file-type (definition obj)))
         (write-line writer "")
 
         (save-settings obj writer)

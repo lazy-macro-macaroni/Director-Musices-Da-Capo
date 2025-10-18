@@ -21,33 +21,49 @@
       (ini-file:get-files file :TESTINI-TESTFILE-two))
   ))
 
-(test-lib:test-macro "read-file"
-  (let* ((def
-          (ini-definition:create
-            '((:test-setting-string :string "")
-              (:test-setting-int :int 0)
-              (:test-setting-float :float 0.0)
-              (:test-setting-string-two :string "")
-              (:test-setting-string-default :string "default value")
-              (:test-setting-multiline-string :string "")
+(let ((def nil)
+      (file1 nil))
+  (test-lib:test-no-errors "ini-definition:create"
+    (setf def
+      (ini-definition:create
+        "test-file"
+        '((:test-setting-string :string "")
+          (:test-setting-int :int 0)
+          (:test-setting-float :float 0.0)
+          (:test-setting-string-two :string "")
+          (:test-setting-string-default :string "default value")
+          (:test-setting-multiline-string :string "")
 
-              (:test-setting-form :form "")
-              (:test-setting-form-two :form "")
-            )
-            '(:testini-testfile :testini-testfile-two)))
-         (file1 (ini-file:create def)))
+          (:test-setting-form :form "")
+          (:test-setting-form-two :form "")
+        )
+        '(:testini-testfile :testini-testfile-two))))
 
+  (test-lib:test-no-errors "create"
+    (setf file1 (ini-file:create def)))
+
+  (test-lib:test-no-errors "read-ini-from-file"
     (read-ini-from-file file1 (file-utils:jfile "." "src-test" "utils" "testini.ini"))
-    (test-ini-file file1)
+    (test-ini-file file1))
 
+  (test-lib:test-no-errors "save-ini-to-string/read-ini-from-string"
     (let ((file2 (ini-file:create def)))
       (read-ini-from-string file2 (save-ini-to-string file1))
-      (test-ini-file file2))
+      (test-ini-file file2)))
 
-    (let ((test-saved-file (file-utils:jfile "." "src-test" "utils" "testini-testsave.ini")))
-      (save-ini-to-file file1 test-saved-file)
+  (test-lib:test-expect-error ini-definition:ini-bad-file-type-error
+    (let ((file2 (ini-file:create def)))
+      (read-ini-from-string file2 (globals:format-string ""))))
 
-      (let ((file3 (ini-file:create def)))
-        (read-ini-from-file file3 test-saved-file)
-        (test-ini-file file3)))
-))
+  (test-lib:test-expect-error ini-definition:ini-bad-file-type-error
+    (let ((file2 (ini-file:create def)))
+      (read-ini-from-string file2 (globals:format-string "INIFIL"))))
+
+  (test-lib:test-expect-error ini-definition:ini-bad-file-type-error
+    (let ((file2 (ini-file:create def)))
+      (read-ini-from-string file2 (globals:format-string "INIFILE~%test-file-lol~%"))))
+
+  (test-lib:test-expect-error ini-definition:ini-bad-setting-name-error
+    (let ((file2 (ini-file:create def)))
+      (read-ini-from-string file2 (globals:format-string "INIFILE~%test-file~%bla=3~%"))))
+)
