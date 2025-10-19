@@ -88,6 +88,8 @@
     "src/swing/tree.lsp"
     "src/swing/frame.lsp"
 
+    "src/ui/folder-menu.lsp"
+
     "src/window/calculate-window-size.lsp"
 
     "src/utils/ini/ini-definition.lsp"
@@ -101,6 +103,7 @@
     "src/score/score-select-built-in.lsp"
 
     "src/rulepalette/rulepalette-manage.lsp"
+    "src/rulepalette/rulepalette-select-built-in.lsp"
 
     "src/ui/glue.lsp"
     "src/ui/player.lsp"

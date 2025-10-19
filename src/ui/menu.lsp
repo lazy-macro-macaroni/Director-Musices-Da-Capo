@@ -29,6 +29,7 @@
 
     (swing-menu:separator menu)
     (swing-menu:item menu "Open Rulepalette..." #'rulepalette-manage:open-rulepalette-dialog)
+    (rulepalette-select-built-in:create-menu menu)
     (item-if-score menu "Export Rulepalette..." #'rulepalette-manage:export-rulepalette-dialog)
 
     (swing-menu:separator menu)
