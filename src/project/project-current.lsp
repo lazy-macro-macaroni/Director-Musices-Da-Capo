@@ -1,5 +1,5 @@
 
-(globals:standard-package :project-current load-dialog save-dialog save-current-file ensure-project-saved)
+(globals:standard-package :project-current open save save-as ensure-project-saved)
 
 (defparameter *current-project* nil)
 
@@ -13,11 +13,11 @@
 
 (defun load-current (file)
   (ensure-project)
-  (project-data:load-project *current-project* file))
+  (project-data:load-from-file *current-project* file))
 
 (defun save-current (file)
   (ensure-project)
-  (project-data:save-project *current-project* file))
+  (project-data:save-to-file *current-project* file))
 
 (defparameter dialog-file-type '("DM Project File" ("dmproj")))
 
@@ -31,8 +31,17 @@
     (if (not (eq f nil))
       (save-current f))))
 
-(defun save-current-file ()
-  (globals:println "Not implemented: project-current:save-current-file")
+(defun open ()
+  (load-dialog))
+
+(defun save ()
+  (ensure-project)
+  (let ((f (data-utils:get-value (project-data:get-current-file *current-project*))))
+    (if (eq f nil)
+      (save-dialog)
+      (project-data:save-to-file f))))
+
+(defun save-as ()
   (save-dialog))
 
 (defun ensure-project-saved ()

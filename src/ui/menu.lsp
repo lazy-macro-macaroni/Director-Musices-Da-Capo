@@ -16,9 +16,9 @@
 
 (defun file-menu (menu-bar)
   (let ((menu (swing-menu:create-menu menu-bar "File" :keyboard-shortcut #\F)))
-    (swing-menu:item menu "Open Project..." #'project-current:load-dialog :keyboard-shortcut #\O)
-    (swing-menu:item menu "Save Project" #'project-current:save-current-file :keyboard-shortcut #\S)
-    (swing-menu:item menu "Save Project As..." #'project-current:save-dialog :keyboard-shortcut #\S :need-shift t)
+    (swing-menu:item menu "Open Project..." #'project-current:open :keyboard-shortcut #\O)
+    (swing-menu:item menu "Save Project" #'project-current:save :keyboard-shortcut #\S)
+    (swing-menu:item menu "Save Project As..." #'project-current:save-as :keyboard-shortcut #\S :need-shift t)
 
     (swing-menu:separator menu)
 
