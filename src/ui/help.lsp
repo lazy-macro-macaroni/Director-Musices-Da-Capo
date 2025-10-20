@@ -1,7 +1,7 @@
 (globals:standard-package :ui-help open-help)
 
 (defun scan-nodes (node file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
 
   (assert (jcall "exists" file) (file) "Input path doesn't exist: ~A" (file-utils:file-to-string file))
 

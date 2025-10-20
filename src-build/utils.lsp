@@ -1,19 +1,13 @@
 
-(globals:standard-package :build-utils :get-classpath-separator :get-path-separator :delete-path :copy-path :zip :tar-gz :with-task :write-to-file)
-
-(defun get-classpath-separator ()
-  (jfield "java.io.File" "pathSeparator"))
-
-(defun get-path-separator ()
-  (jfield "java.io.File" "separator"))
+(globals:standard-package :build-utils :delete-path :copy-path :zip :tar-gz :with-task :write-to-file)
 
 ;;
 ;; Deleting file/folders
 ;;
 
 (defun delete-path2 (parent path)
-  (java-utils:jcheck-type parent "java.io.File")
-  (java-utils:jcheck-type path "java.io.File")
+  (file-utils:check-type-is-file parent)
+  (file-utils:check-type-is-file path)
 
   (assert (jcall "exists" path) (path) "Path doesn't exist: ~A" (jcall "getPath" path))
 
@@ -48,9 +42,9 @@
 ;;
 
 (defun copy-path2 (input output current)
-  (java-utils:jcheck-type input "java.io.File")
-  (java-utils:jcheck-type output "java.io.File")
-  ; (java-utils:jcheck-type current "java.io.File")
+  (file-utils:check-type-is-file input)
+  (file-utils:check-type-is-file output)
+  ; (file-utils:check-type-is-file current)
 
   (assert (jcall "exists" input) (input) "Input path doesn't exist: ~A" (jcall "getPath" input))
   ; (assert (jcall "exists" current) (current) "Current path doesn't exist: ~A" (jcall "getPath" current))
@@ -106,7 +100,7 @@
     (jcall "close" input-stream)))
 
 (defun zip2 (input-folder zip-stream process-file current)
-  (java-utils:jcheck-type input-folder "java.io.File")
+  (file-utils:check-type-is-file input-folder)
 
   (assert (jcall "exists" input-folder) (input-folder) "Input path doesn't exist: ~A" (file-utils:file-to-string input-folder))
 
@@ -130,10 +124,10 @@
       (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (file-utils:file-to-string input-file))))))
 
 (defun zip (input-folder output-file &key process-file)
-  (java-utils:jcheck-type input-folder "java.io.File")
-  (java-utils:jcheck-type output-file "java.io.File")
+  (file-utils:check-type-is-file input-folder)
+  (file-utils:check-type-is-file output-file)
 
-  (when (file-utils:directory-exists output-file)
+  (when (file-utils:file-is-dir-on-disk output-file)
     (error "Output file is directory: ~A" (file-utils:file-to-string output-file)))
 
   (let* ((file-stream (jnew "java.io.FileOutputStream" output-file))
@@ -168,7 +162,7 @@
     (jcall "close" input-stream)))
 
 (defun tar-gz2 (input-folder tar-stream process-file current)
-  (java-utils:jcheck-type input-folder "java.io.File")
+  (file-utils:check-type-is-file input-folder)
 
   (assert (jcall "exists" input-folder) (input-folder) "Input path doesn't exist: ~A" (file-utils:file-to-string input-folder))
 
@@ -192,10 +186,10 @@
       (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (file-utils:file-to-string input-file))))))
 
 (defun tar-gz (input-folder output-file &key process-file)
-  (java-utils:jcheck-type input-folder "java.io.File")
-  (java-utils:jcheck-type output-file "java.io.File")
+  (file-utils:check-type-is-file input-folder)
+  (file-utils:check-type-is-file output-file)
 
-  (when (file-utils:directory-exists output-file)
+  (when (file-utils:file-is-dir-on-disk output-file)
     (error "Output file is directory: ~A" (file-utils:file-to-string output-file)))
 
   (let* ((file-stream (jnew "java.io.FileOutputStream" output-file))
@@ -220,7 +214,7 @@
     (java-utils:exit 1)))
 
 (defun write-to-file (output-file text)
-  (java-utils:jcheck-type output-file "java.io.File")
+  (file-utils:check-type-is-file output-file)
 
   (let ((print-writer (jnew "java.io.PrintWriter" (file-utils:file-to-string output-file) "UTF-8")))
     (jcall "print" print-writer text)

@@ -6,7 +6,7 @@
    (callback :accessor get-callback)))
 
 (defun scan-files (file current-list)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
   (check-type current-list list)
 
   (assert (jcall "exists" file) (file) "Input path doesn't exist: ~A" (file-utils:file-to-string file))
@@ -15,8 +15,8 @@
     ((jcall "isFile" file) (setf current-list (nconc current-list (list file))))
     ((jcall "isDirectory" file)
       (let* ((contents1 (jcall "listFiles" file))
-             (folders (loop for item across contents1 when (file-utils:directory-exists item) collect item))
-             (files (loop for item across contents1 when (file-utils:file-exists item) collect item))
+             (folders (loop for item across contents1 when (file-utils:file-is-dir-on-disk item) collect item))
+             (files (loop for item across contents1 when (file-utils:file-is-file-on-disk item) collect item))
              (contents (concatenate 'list folders files))
              (dir-list (list (file-utils:file-name file))))
         (setf current-list (nconc current-list (list dir-list)))
@@ -30,13 +30,13 @@
   current-list)
 
 (defun create-tree (file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
   (make-instance 'folder-tree :tree (scan-files file '())))
 
 (defmethod create-menu-items ((ftree folder-tree) menu current-tree is-top)
   (cond
     ((eq current-tree nil) nil)
-    ((java-utils:jinstance-of current-tree "java.io.File")
+    ((file-utils:filep current-tree)
       (swing-menu:item menu (file-utils:file-name-no-extension current-tree) (globals:safe-lambda "Folder Menu Item Callback" () (funcall (get-callback ftree) current-tree))))
     ((listp current-tree)
       (let ((sub-menu (if is-top menu (swing-menu:create-sub-menu menu (car current-tree)))))

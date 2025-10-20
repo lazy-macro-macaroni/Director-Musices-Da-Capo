@@ -13,7 +13,7 @@
 ; From here: https://stackoverflow.com/a/22273319
 (defun download (url output-path)
   (check-type url string)
-  (java-utils:jcheck-type output-path "java.io.File")
+  (file-utils:check-type-is-file output-path)
 
   (when (not (jcall "isFile" output-path))
     (jcall "mkdirs" (jcall "getParentFile" output-path)))
@@ -47,7 +47,7 @@
 ;; CHECKSUM
 
 (defun check-sha256 (path checksum)
-  (java-utils:jcheck-type path "java.io.File")
+  (file-utils:check-type-is-file path)
   (check-type checksum string)
 
   (globals:print "Checking checksum...")
@@ -80,8 +80,8 @@
 ; From here: https://stackoverflow.com/a/40050629
 
 (defun unzip (file folder)
-  (java-utils:jcheck-type file "java.io.File")
-  (java-utils:jcheck-type folder "java.io.File")
+  (file-utils:check-type-is-file file)
+  (file-utils:check-type-is-file folder)
 
   (globals:println "File = ~A~%Folder = ~A" (file-utils:file-to-string file) (file-utils:file-to-string folder))
 
@@ -121,8 +121,8 @@
 ;; Extract tar.gz
 
 (defun extract-tar-gz (file folder)
-  (java-utils:jcheck-type file "java.io.File")
-  (java-utils:jcheck-type folder "java.io.File")
+  (file-utils:check-type-is-file file)
+  (file-utils:check-type-is-file folder)
 
   (globals:println "File = ~A~%Folder = ~A" (file-utils:file-to-string file) (file-utils:file-to-string folder))
 
@@ -183,9 +183,9 @@
 (defun download-jdk (url checksum zip-file out-dir completed-file)
   (check-type url string)
   (check-type checksum string)
-  (java-utils:jcheck-type zip-file "java.io.File")
-  (java-utils:jcheck-type out-dir "java.io.File")
-  (java-utils:jcheck-type completed-file "java.io.File")
+  (file-utils:check-type-is-file zip-file)
+  (file-utils:check-type-is-file out-dir)
+  (file-utils:check-type-is-file completed-file)
 
   (when (jcall "isFile" completed-file)
     (globals:println "OK")

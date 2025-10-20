@@ -91,7 +91,7 @@
   (setf (buffered-reader obj) nil))
 
 (defmethod read-ini-from-file ((obj ini-file) file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
 
   (setf (buffered-reader obj) (jnew "java.io.BufferedReader" (jnew "java.io.FileReader" file)))
   (unwind-protect
@@ -107,7 +107,7 @@
     (close-file obj)))
 
 (defmethod save-ini-to-file ((obj ini-file) file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
 
   (let ((file-writer (jnew "java.io.FileWriter" file)))
     (save obj file-writer)))

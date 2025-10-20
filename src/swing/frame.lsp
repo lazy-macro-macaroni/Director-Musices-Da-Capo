@@ -2,7 +2,7 @@
 (globals:standard-package :swing-frame create-frame set-icons)
 
 (defun get-image (file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
   (jcall "getImage"
     (jnew "javax.swing.ImageIcon" (file-utils:file-to-string file))))
 

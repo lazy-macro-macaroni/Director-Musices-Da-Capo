@@ -1,6 +1,6 @@
 
 (globals:standard-package :java-utils
-  :array-to-list list-to-jlist :jinstance-of :jcheck-type :exit :runnable :thread :run-in-thread)
+  :array-to-list list-to-jlist :jinstance-of :jcheck-type :exit :runnable :thread :run-in-thread get-classpath-separator)
 
 ;; TYPES ;;
 
@@ -49,3 +49,6 @@
 
 (defun wait (seconds)
   (jstatic "sleep" "java.lang.Thread" (* seconds 1000)))
+
+(defun get-classpath-separator ()
+  (jfield "java.io.File" "pathSeparator"))

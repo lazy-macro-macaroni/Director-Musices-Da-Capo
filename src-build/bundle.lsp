@@ -75,7 +75,7 @@
 (defun bundle (platform)
   (let* ((out-path (get-out-path platform))
          (out-main (get-out-main out-path platform)))
-    (when (file-utils:path-exists out-path)
+    (when (file-utils:file-exists-on-disk out-path)
       (build-utils:with-task "Deleting previous files"
         (build-utils:delete-path out-path)))
 
@@ -100,7 +100,7 @@
     (add-executable platform out-main)
 
     (let ((archive-file (get-archive-file platform)))
-      (when (file-utils:path-exists archive-file)
+      (when (file-utils:file-exists-on-disk archive-file)
         (build-utils:with-task "Deleting previous archive"
           (build-utils:delete-path archive-file)))
       (build-utils:with-task "Creating archive"

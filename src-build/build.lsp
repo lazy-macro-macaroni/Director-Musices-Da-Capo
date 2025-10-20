@@ -34,7 +34,7 @@
 
 (defun run-java (java-command &rest arguments)
   (let* ((command-file (get-java-command java-command))
-         (arguments2 (loop for arg in arguments collect (if (java-utils:jinstance-of arg "java.io.File") (file-utils:file-to-string arg) arg)))
+         (arguments2 (loop for arg in arguments collect (if (file-utils:filep arg) (file-utils:file-to-string arg) arg)))
          (arguments3 (cons (file-utils:file-to-string command-file) arguments2))
          (pb (jnew "java.lang.ProcessBuilder" (jnew-array-from-list "java.lang.String" arguments3))))
     (jcall "inheritIO" pb)
@@ -48,20 +48,20 @@
   (run-java "javac" "-cp"
     (concatenate 'string
       (file-utils:file-to-string (file-utils:jfile "." "lib" "abcl-1.9.2" "abcl.jar"))
-      (build-utils:get-classpath-separator)
+      (java-utils:get-classpath-separator)
       (file-utils:file-to-string (file-utils:jfile "." "lib" "abcl-1.9.2" "abcl-contrib.jar")))
     "-d"
     (file-utils:jfile "." "build" "java")
     (concatenate 'string
       (file-utils:file-to-string (file-utils:jfile "." "src-java" "dm_java"))
-      (build-utils:get-path-separator)
+      (file-utils:get-path-separator)
       "*.java"))
   (globals:println "OK"))
 
 (defun create-jre (platform)
   (let ((jdk-path (build-paths:jdk-path platform))
         (out-path (build-paths:jre-path platform)))
-    (when (file-utils:path-exists out-path)
+    (when (file-utils:file-exists-on-disk out-path)
       (build-utils:with-task "Deleting JRE"
         (build-utils:delete-path out-path)))
 

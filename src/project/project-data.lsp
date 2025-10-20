@@ -18,11 +18,11 @@
   (a-get-current-file p))
 
 (defmethod load-from-file ((p project) file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
   (ini-file:read-ini-from-file (a-get-ini p) file)
   (setf (a-get-current-file p) file))
 
 (defmethod save-to-file ((p project) file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
   (ini-file:save-ini-to-file (a-get-ini p) file)
   (setf (a-get-current-file p) file))

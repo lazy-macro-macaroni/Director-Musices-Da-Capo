@@ -2,7 +2,7 @@
 (globals:standard-package :score-select-built-in create-menu)
 
 (defun open-score (file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
   (globals:println "Not Implemented: score-select:open-score"))
 
 (defparameter *file-tree* nil)

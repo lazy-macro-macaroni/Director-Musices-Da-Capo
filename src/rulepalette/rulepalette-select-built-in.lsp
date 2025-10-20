@@ -2,7 +2,7 @@
 (globals:standard-package :rulepalette-select-built-in create-menu)
 
 (defun open-rulepalette (file)
-  (java-utils:jcheck-type file "java.io.File")
+  (file-utils:check-type-is-file file)
   (globals:println "Not Implemented: rulepalette-select:open-rulepalette"))
 
 (defparameter *file-tree* nil)
