@@ -81,6 +81,7 @@
     "src/utils/string-utils.lsp"
     "src/utils/file-utils.lsp"
     "src/utils/misc-utils.lsp"
+    "src/utils/data-utils.lsp"
 
     "src/swing/dialogs.lsp"
     "src/swing/menu.lsp"

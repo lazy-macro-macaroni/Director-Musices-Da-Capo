@@ -30,19 +30,24 @@
      (globals:println "  Testing ~A: ~A" ,prefix (string-utils:uppercase ,name))
      (tests ,@forms)))
 
-(defmacro test-fn (fn-name &rest forms)
-  `(test-with-prefix "function" ,fn-name ,@forms))
+(defmacro test-fn (name &rest forms)
+  (check-type name string)
+  `(test-with-prefix "function" ,name ,@forms))
 
-(defmacro test-class (fn-name &rest forms)
-  `(test-with-prefix "class" ,fn-name ,@forms))
+(defmacro test-class (name &rest forms)
+  (check-type name string)
+  `(test-with-prefix "class" ,name ,@forms))
 
-(defmacro test-method (fn-name &rest forms)
-  `(test-with-prefix "method" ,fn-name ,@forms))
+(defmacro test-method (name &rest forms)
+  (check-type name string)
+  `(test-with-prefix "method" ,name ,@forms))
 
-(defmacro test-macro (fn-name &rest forms)
-  `(test-with-prefix "macro" ,fn-name ,@forms))
+(defmacro test-macro (name &rest forms)
+  (check-type name string)
+  `(test-with-prefix "macro" ,name ,@forms))
 
 (defmacro test-no-errors (name &rest forms)
+  (check-type name string)
   `(progn
      (globals:println "  Testing for errors: ~A" ,name)
      (tests (progn ,@forms t))))
