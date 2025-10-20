@@ -2,8 +2,6 @@
 (globals:standard-package :main :main)
 
 (defun main2 ()
-  (jstatic "sleep" "java.lang.Thread" 200)
-  (jstatic "hide" "dm_java.ProgressManager")
   (let ((frame (swing-frame:create-frame "Director-Musices"))
         (label (jnew "javax.swing.JLabel" "")))
 
@@ -22,10 +20,11 @@
 
     (window-calculate-window-size:set-window-size frame 0.5 0.7)
 
+    (jstatic "hide" "dm_java.ProgressManager")
     (jcall "setVisible" frame +TRUE+)
     (jcall "requestFocus" frame))
   )
 
 (defun main ()
-  (if (eq (globals:handle-errors (main2) :failure :failed) :failed)
+  (when (eq (globals:handle-errors (main2) :failure :failed) :failed)
     (java-utils:exit 1)))
