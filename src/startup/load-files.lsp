@@ -76,6 +76,9 @@
 
 (defun src-files ()
   '("src/version.lsp"
+
+    "src/java/java-dm.lsp"
+
     "src/utils/java-utils.lsp"
     "src/utils/list-utils.lsp"
     "src/utils/string-utils.lsp"

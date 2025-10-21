@@ -2,8 +2,7 @@
 (globals:standard-package :main :main)
 
 (defun main2 ()
-  (let ((frame (swing-frame:create-frame "Director-Musices"))
-        (label (jnew "javax.swing.JLabel" "")))
+  (let ((frame (swing-frame:create-frame "Director-Musices")))
 
     (globals:set-main-window frame)
 
@@ -13,17 +12,15 @@
       (file-utils:jfile "." "resources" "icon" "icon256.png")
       (file-utils:jfile "." "resources" "icon" "icon512.png"))
 
-    (jcall "setJMenuBar" frame (ui-menu::create-menu))
-    (jcall "add" frame label)
-
-    (jcall "setDefaultCloseOperation" frame (jfield "javax.swing.JFrame" "EXIT_ON_CLOSE"))
+    (swing-frame:set-menu-bar frame (ui-menu::create-menu))
+    (swing-frame:set-close-operation frame :exit)
 
     (window-calculate-window-size:set-window-size frame 0.5 0.7)
 
-    (jstatic "hide" "dm_java.ProgressManager")
-    (jcall "setVisible" frame +TRUE+)
-    (jcall "requestFocus" frame))
-  )
+    (java-dm:hide-splash)
+
+    (swing-frame:set-visible frame t)
+    (swing-frame:request-focus frame)))
 
 (defun main ()
   (when (eq (globals:handle-errors (main2) :failure :failed) :failed)
