@@ -9,20 +9,19 @@
   (file-utils:check-type-is-file file)
   (check-type current-list list)
 
-  (assert (jcall "exists" file) (file) "Input path doesn't exist: ~A" (file-utils:file-to-string file))
+  (assert (file-utils:file-exists-on-disk file) (file) "Input path doesn't exist: ~A" (file-utils:file-to-string file))
 
   (cond
-    ((jcall "isFile" file) (setf current-list (nconc current-list (list file))))
-    ((jcall "isDirectory" file)
-      (let* ((contents1 (jcall "listFiles" file))
-             (folders (loop for item across contents1 when (file-utils:file-is-dir-on-disk item) collect item))
-             (files (loop for item across contents1 when (file-utils:file-is-file-on-disk item) collect item))
+    ((file-utils:file-is-file-on-disk file) (setf current-list (nconc current-list (list file))))
+    ((file-utils:file-is-dir-on-disk  file)
+      (let* ((contents1 (file-utils:list-files file))
+             (folders (loop for item in contents1 when (file-utils:file-is-dir-on-disk item) collect item))
+             (files (loop for item in contents1 when (file-utils:file-is-file-on-disk item) collect item))
              (contents (concatenate 'list folders files))
              (dir-list (list (file-utils:file-name file))))
         (setf current-list (nconc current-list (list dir-list)))
         (loop
           for item in contents
-          when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
           do
           (setf dir-list (scan-files item dir-list)))))
     (t (globals:println "WARNING: Somehow path \"~A\" is not a directory or file." (file-utils:file-to-string file))))
