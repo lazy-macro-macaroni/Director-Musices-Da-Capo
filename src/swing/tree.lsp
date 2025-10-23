@@ -3,8 +3,10 @@
   tree
   get-root-node
   node get-node-title get-node-id
+  get-node-first-child
   add-child add-selection-listener rename-node
-  find-node-by-id select-node)
+  find-node-by-id select-node
+  remove-node-parent)
 
 (defun tree (root-node)
   (java-utils:jcheck-type root-node "javax.swing.tree.DefaultMutableTreeNode")
@@ -31,6 +33,10 @@
 (defun get-node-id (node)
   (java-utils:jcheck-type node "javax.swing.tree.DefaultMutableTreeNode")
   (jcall "getID" (jcall "getUserObject" node)))
+
+(defun get-node-first-child (node)
+  (java-utils:jcheck-type node "javax.swing.tree.DefaultMutableTreeNode")
+  (jcall "getFirstChild" node))
 
 (defun add-child (parent child)
   (java-utils:jcheck-type parent "javax.swing.tree.DefaultMutableTreeNode")
@@ -89,3 +95,8 @@
     (jcall "expandPath" tree path)
     (jcall "setSelectionPath" tree path)
     (jcall "scrollPathToVisible" tree path)))
+
+(defun remove-node-parent (node)
+  (java-utils:jcheck-type node "javax.swing.tree.DefaultMutableTreeNode")
+
+  (jcall "removeFromParent" node))

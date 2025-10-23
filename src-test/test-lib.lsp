@@ -71,7 +71,7 @@
 
 (defun run-tests ()
   (handler-case
-    (loop for file in (file-utils:list-files (file-utils:jfile "." "src-test"))
+    (loop for file in (file-utils:list-files-recursive (file-utils:jfile "." "src-test"))
       for name = (file-utils:file-name file)
       when (string-utils:ends-with-p name ".lsp")
       when (not (string= "test-lib.lsp" name))

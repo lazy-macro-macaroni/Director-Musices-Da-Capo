@@ -1,5 +1,8 @@
 
-(globals:standard-package :swing-frame create-frame set-icons set-menu-bar set-close-operation set-visible request-focus)
+(globals:standard-package :swing-frame create-frame create-child-frame set-icons set-menu-bar set-close-operation set-visible request-focus add)
+
+(defmacro check-type-is-frame (obj)
+  `(java-utils:jcheck-type ,obj "javax.swing.JFrame" "javax.swing.JDialog"))
 
 (defun get-image (file)
   (file-utils:check-type-is-file file)
@@ -10,6 +13,11 @@
   (check-type title string)
   (jnew "javax.swing.JFrame" title))
 
+(defun create-child-frame (parent title)
+  (check-type-is-frame parent)
+  (check-type title string)
+  (jnew "javax.swing.JDialog" parent title))
+
 (defun set-icons (frame &rest icon-files)
   (jstatic "JFrameSetIcons" "dm_java.ApiHelpers"
     frame
@@ -18,7 +26,7 @@
         collect (get-image file)))))
 
 (defun set-menu-bar (frame menu)
-  (java-utils:jcheck-type frame "javax.swing.JFrame")
+  (check-type-is-frame frame)
   (java-utils:jcheck-type menu "javax.swing.JMenuBar")
 
   (jcall "setJMenuBar" frame menu))
@@ -34,18 +42,18 @@
         (error "Value: ~S, is not a valid frame close operation. Accepted values: :dispose, :nothing, :exit, :hide." op)))))
 
 (defun set-close-operation (frame op)
-  (java-utils:jcheck-type frame "javax.swing.JFrame")
+  (check-type-is-frame frame)
   (jcall "setDefaultCloseOperation" frame (get-close-operation op)))
 
 (defun set-visible (frame visible)
-  (java-utils:jcheck-type frame "javax.swing.JFrame")
+  (check-type-is-frame frame)
   (jcall "setVisible" frame (if visible +TRUE+ +FALSE)))
 
 (defun request-focus (frame)
-  (java-utils:jcheck-type frame "javax.swing.JFrame")
+  (check-type-is-frame frame)
   (jcall "requestFocus" frame))
 
 (defun add (frame c)
-  (java-utils:jcheck-type frame "javax.swing.JFrame")
+  (check-type-is-frame frame)
   (java-utils:jcheck-type c "java.awt.Component")
   (jcall "add" frame c))

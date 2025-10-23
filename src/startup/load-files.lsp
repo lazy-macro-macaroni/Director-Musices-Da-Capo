@@ -91,6 +91,9 @@
     "src/swing/threads.lsp"
     "src/swing/tree.lsp"
     "src/swing/frame.lsp"
+    "src/swing/swing-split-pane.lsp"
+    "src/swing/swing-editor-pane.lsp"
+    "src/swing/swing-scroll-pane.lsp"
 
     "src/ui/folder-menu.lsp"
 

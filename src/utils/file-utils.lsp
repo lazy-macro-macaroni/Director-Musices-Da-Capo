@@ -1,9 +1,9 @@
 
 (globals:standard-package :file-utils
   filep check-type-is-file get-path-separator
-  :jpath :jfile :file-exists-on-disk :file-is-dir-on-disk :file-is-file-on-disk :file-to-string :file-is-same :file-is-parent :file-name
+  :jpath :jfile :file-exists-on-disk :file-is-dir-on-disk :file-is-file-on-disk file-is-symlink-on-disk :file-to-string :file-is-same :file-is-parent :file-name
   :file-name-no-extension
-  :read-from-file read-lines-from-file :save-to-file :list-files)
+  :read-from-file read-lines-from-file :save-to-file :list-files-recursive list-files)
 
 (defun filep (f)
   (java-utils:jinstance-of f "java.io.File"))
@@ -36,6 +36,10 @@
 (defun file-is-file-on-disk (path)
   (check-type-is-file path)
   (jcall "isFile" path))
+
+(defun file-is-symlink-on-disk (path)
+  (check-type-is-file path)
+  (jstatic "isSymbolicLink" "java.nio.file.Files" (jpath path)))
 
 (defun file-to-string (path)
   (check-type-is-file path)
@@ -84,7 +88,7 @@
 
 ;; Find Files ;;
 
-(defun list-files2 (parent path)
+(defun list-files-recursive2 (parent path)
   (check-type-is-file parent)
   (check-type-is-file path)
 
@@ -93,22 +97,29 @@
   ; Some extra protection to not delete whole system or something
   (when (not (file-utils:file-is-parent parent path))
     (globals:println "File \"~A\" is not a child of directory \"~A\". Skipping." (file-utils:file-to-string path) (file-utils:file-to-string parent))
-    (return-from list-files2))
+    (return-from list-files-recursive2))
 
   (cond
     ((jcall "isFile" path) (list path))
     ((jcall "isDirectory" path)
       (let ((contents (jcall "listFiles" path)))
-        (if (= (length contents) 0) (return-from list-files2))
+        (if (= (length contents) 0) (return-from list-files-recursive2))
         (loop
           for item across contents
           when (not (jstatic "isSymbolicLink" "java.nio.file.Files" (jcall "toPath" item)))
-          collect (list-files2 parent item))))
+          collect (list-files-recursive2 parent item))))
     (t
       (globals:println "WARNING: Somehow path \"~A\" is not a directory or file" (file-utils:file-to-string path))
       nil)))
 
+(defun list-files-recursive (path)
+  (check-type-is-file path)
+
+  (list-utils:flatten (list-files-recursive2 path path)))
+
 (defun list-files (path)
   (check-type-is-file path)
 
-  (list-utils:flatten (list-files2 path path)))
+  (loop for item across (jcall "listFiles" path)
+    when (not (file-is-symlink-on-disk item))
+    collect item))

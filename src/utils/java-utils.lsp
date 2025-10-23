@@ -4,12 +4,14 @@
 
 ;; TYPES ;;
 
-(defun jinstance-of (object jclass-name)
-  (jcall "isInstance"  (jclass jclass-name) object))
+(defmacro jinstance-of (object jclass-name &rest rest-jclass-names)
+  `(or ,@(loop for name in (cons jclass-name rest-jclass-names) collect `(jcall "isInstance" (jclass ,name) ,object))))
 
-(defmacro jcheck-type (object jclass-name)
-  `(if (not (jinstance-of ,object ,jclass-name))
-    (error (globals:format-string "Object ~S is not of type ~S" ',object ,jclass-name))))
+(defmacro jcheck-type (object jclass-name &rest rest-jclass-names)
+  `(when (not (jinstance-of ,object ,jclass-name ,@rest-jclass-names))
+    (if (eq 0 (list-length ',rest-jclass-names))
+      (error (globals:format-string "Object ~S is not of type: ~A" ',object ,jclass-name))
+      (error (globals:format-string "Object ~S is not any of types: ~{~a~^, ~}" ',object (cons ,jclass-name ',rest-jclass-names))))))
 
 ;; CONVERSION ;;
 
