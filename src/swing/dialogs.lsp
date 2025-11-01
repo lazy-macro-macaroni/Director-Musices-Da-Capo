@@ -1,5 +1,9 @@
 
-(globals:standard-package :swing-dialogs choose-file ok-dialog error-dialog ok-cancel-dialog)
+(globals:standard-package :swing-dialogs
+  choose-file
+  ok-dialog
+  error-dialog
+  ok-cancel-dialog)
 
 (defun choose-file (filetype-description filetypes &key is-save)
   "Shows an open file dialog by default. Set IS-SAVE to t to get a save dialog.
@@ -26,10 +30,10 @@
   (jstatic "showMessageDialog" "javax.swing.JOptionPane" java:+null+ message "ERROR" (jfield "javax.swing.JOptionPane" "ERROR_MESSAGE"))
   t)
 
-(defun ok-cancel-dialog (message title)
-  (check-type message string)
+(defun ok-cancel-dialog (title message)
   (check-type title string)
+  (check-type message string)
 
-  (let ((result (jstatic "showConfirmDialog" "javax.swing.JOptionPane" java:+null+ message "ERROR"
+  (let ((result (jstatic "showConfirmDialog" "javax.swing.JOptionPane" java:+null+ message title
           (jfield "javax.swing.JOptionPane" "OK_CANCEL_OPTION"))))
     (= result 0)))

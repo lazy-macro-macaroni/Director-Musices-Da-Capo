@@ -1,9 +1,25 @@
 
 (globals:standard-package :file-utils
-  filep check-type-is-file get-path-separator
-  :jpath :jfile :file-exists-on-disk :file-is-dir-on-disk :file-is-file-on-disk file-is-symlink-on-disk :file-to-string :file-is-same :file-is-parent :file-name
-  :file-name-no-extension
-  :read-from-file read-lines-from-file :save-to-file :list-files-recursive list-files)
+  filep
+  check-type-is-file
+  get-path-separator
+  jpath
+  jfile
+  file-exists-on-disk
+  file-is-dir-on-disk
+  file-is-file-on-disk
+  file-is-symlink-on-disk
+  file-to-string
+  file-is-same
+  file-is-parent
+  file-name
+  file-name-no-extension
+  ensure-file-ending
+  read-from-file
+  read-lines-from-file
+  save-to-file
+  list-files-recursive
+  list-files)
 
 (defun filep (f)
   (java-utils:jinstance-of f "java.io.File"))
@@ -70,6 +86,14 @@
          (last-dot (search "." name :from-end t)) ; Find the position of the last dot
          (before (if last-dot (subseq name 0 last-dot) name))) ; Substring before the dot
     before))
+
+(defun ensure-file-ending (file ending)
+  (check-type-is-file file)
+  (check-type ending string)
+  (let ((s (file-to-string file)))
+    (if (jcall "endsWith" s ending)
+      file
+      (jfile (jcall "concat" s ending)))))
 
 ;; File I/O ;;
 

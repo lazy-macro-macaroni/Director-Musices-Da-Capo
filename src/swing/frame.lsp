@@ -1,5 +1,14 @@
 
-(globals:standard-package :swing-frame create-frame create-child-frame set-icons set-menu-bar set-close-operation set-visible request-focus add)
+(globals:standard-package :swing-frame
+  create-frame
+  create-child-frame
+  set-title
+  set-icons
+  set-menu-bar
+  set-close-operation
+  set-visible
+  request-focus
+  add)
 
 (defmacro check-type-is-frame (obj)
   `(java-utils:jcheck-type ,obj "javax.swing.JFrame" "javax.swing.JDialog"))
@@ -17,6 +26,11 @@
   (check-type-is-frame parent)
   (check-type title string)
   (jnew "javax.swing.JDialog" parent title))
+
+(defun set-title (frame title)
+  (check-type-is-frame frame)
+  (check-type title string)
+  (jcall "setTitle" frame title))
 
 (defun set-icons (frame &rest icon-files)
   (jstatic "JFrameSetIcons" "dm_java.ApiHelpers"

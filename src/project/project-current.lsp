@@ -1,5 +1,11 @@
 
-(globals:standard-package :project-current open save save-as ensure-project-saved)
+(globals:standard-package :project-current
+  get-project
+  new
+  open
+  save
+  save-as
+  ensure-project-saved)
 
 (defparameter *current-project* nil)
 
@@ -11,13 +17,15 @@
   (if (eq *current-project* nil)
     (setf *current-project* (project-data:create-project))))
 
-(defun load-current (file)
+(defun get-project ()
   (ensure-project)
-  (project-data:load-from-file *current-project* file))
+  *current-project*)
+
+(defun load-current (file)
+  (project-data:load-from-file (get-project) file))
 
 (defun save-current (file)
-  (ensure-project)
-  (project-data:save-to-file *current-project* file))
+  (project-data:save-to-file (get-project) file))
 
 (defparameter dialog-file-type '("DM Project File" ("dmproj")))
 
@@ -28,18 +36,28 @@
 
 (defun save-dialog ()
   (let ((f (apply #'swing-dialogs:choose-file (append dialog-file-type '(:is-save t)))))
-    (if (not (eq f nil))
-      (save-current f))))
+    (if (eq f nil)
+      (return-from save-dialog))
+
+    (setf f (file-utils:ensure-file-ending f ".dmproj"))
+
+    (if (file-utils:file-exists-on-disk f)
+      (if (not (swing-dialogs:ok-cancel-dialog "File Exists!" "File already exists. Overwrite?"))
+        (return-from save-dialog)))
+
+    (save-current f)))
+
+(defun new ()
+  (project-data:reset-project (get-project)))
 
 (defun open ()
   (load-dialog))
 
 (defun save ()
-  (ensure-project)
-  (let ((f (data-utils:get-value (project-data:get-current-file *current-project*))))
+  (let ((f (data-value:get-value (project-data:get-current-file (get-project)))))
     (if (eq f nil)
       (save-dialog)
-      (project-data:save-to-file f))))
+      (save-current f))))
 
 (defun save-as ()
   (save-dialog))

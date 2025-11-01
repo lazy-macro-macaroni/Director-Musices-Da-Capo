@@ -17,6 +17,14 @@
 
     (window-calculate-window-size:set-window-size frame 0.5 0.7)
 
+    (data-value:add-listener (project-data:get-current-file (project-current:get-project))
+      (lambda (f)
+        (swing-frame:set-title frame
+          (globals:format-string "Director-Musices - ~A"
+            (if (eq f nil)
+              "Unsaved Project"
+              (file-utils:file-name f))))))
+
     (java-dm:hide-splash)
 
     (swing-frame:set-visible frame t)

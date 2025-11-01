@@ -1,5 +1,10 @@
 
-(globals:standard-package :project-data get-current-file create-project load-from-file save-to-file)
+(globals:standard-package :project-data
+  get-current-file
+  create-project
+  reset-project
+  load-from-file
+  save-to-file)
 
 (defparameter *ini-def*
   (ini-definition:create
@@ -8,21 +13,29 @@
     '()))
 
 (defclass project ()
-  ((ini :accessor a-get-ini :initarg :ini)
-   (current-file :accessor a-get-current-file :initform (data-utils:create-data-value "project-current-file" nil "java.io.File" :allow-nil t))))
+  ((ini :accessor ini-a :initarg :ini)
+   (scores :accessor scores-a :initform (data-value-list:create-data-value-list "project-scores" 'integer))
+   (rulepalettes :accessor rulepalettes-a :initform (data-value-list:create-data-value-list "project-rulepalettes" 'integer))
+   (current-file :accessor current-file-a :initform (data-value:create-data-value "project-current-file" nil "java.io.File" :allow-nil t))))
 
 (defun create-project ()
   (make-instance 'project :ini (ini-file:create *ini-def*)))
 
+(defmethod reset-project ((p project))
+  (setf (ini-a p) (ini-file:create *ini-def*))
+  (data-value-list:set-list (scores-a p) '())
+  (data-value-list:set-list (rulepalettes-a p) '())
+  (data-value:set-value (current-file-a p) nil))
+
 (defmethod get-current-file ((p project))
-  (a-get-current-file p))
+  (current-file-a p))
 
 (defmethod load-from-file ((p project) file)
   (file-utils:check-type-is-file file)
-  (ini-file:read-ini-from-file (a-get-ini p) file)
-  (setf (a-get-current-file p) file))
+  (ini-file:read-ini-from-file (ini-a p) file)
+  (data-value:set-value (current-file-a p) file))
 
 (defmethod save-to-file ((p project) file)
   (file-utils:check-type-is-file file)
-  (ini-file:save-ini-to-file (a-get-ini p) file)
-  (setf (a-get-current-file p) file))
+  (ini-file:save-ini-to-file (ini-a p) file)
+  (data-value:set-value (current-file-a p) file))
