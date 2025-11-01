@@ -1,17 +1,9 @@
 
-(globals:standard-package :data-utils data-value-bad-type-error create-data-value get-value set-value add-listener)
-
-(globals:custom-error data-value-bad-type-error)
-
-(defun check-value-type (value value-type allow-nil)
-  (if (and allow-nil (eq value nil))
-    t
-    (if (stringp value-type)
-      (progn
-        (java-utils:jcheck-type value value-type)
-        t)
-      (if (not (typep value value-type))
-        (globals:throw-custom-error data-value-bad-type-error (globals:format-string "Value ~S is not of type ~S" value value-type))))))
+(globals:standard-package :data-value
+  create-data-value
+  get-value
+  set-value
+  add-listener)
 
 (defclass data-value ()
   ((name :initarg :name)
@@ -22,7 +14,7 @@
 
 (defun create-data-value (name initial-value value-type &key allow-nil)
   (check-type name string)
-  (check-value-type initial-value value-type allow-nil)
+  (data-value-common:check-value-type initial-value value-type allow-nil)
   (make-instance 'data-value :name name :value initial-value :value-type value-type :allow-nil allow-nil))
 
 (defmethod get-value ((obj data-value))
@@ -30,7 +22,7 @@
 
 (defmethod set-value ((obj data-value) value)
   (let ((value-type (slot-value obj 'value-type)))
-    (check-value-type value value-type (slot-value obj 'allow-nil))
+    (data-value-common:check-value-type value value-type (slot-value obj 'allow-nil))
     (setf (slot-value obj 'value) value)
     (loop for listener in (slot-value obj 'listeners)
       do (funcall listener value))))
