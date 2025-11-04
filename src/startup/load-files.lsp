@@ -91,6 +91,8 @@
 
     "src/swing/dialogs.lsp"
     "src/swing/menu.lsp"
+    "src/swing/swing-box-layout.lsp"
+    "src/swing/swing-button.lsp"
     "src/swing/threads.lsp"
     "src/swing/tree.lsp"
     "src/swing/frame.lsp"

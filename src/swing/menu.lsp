@@ -1,5 +1,15 @@
 
-(globals:standard-package :swing-menu create-menu-bar create-menu create-sub-menu separator item)
+(globals:standard-package :swing-menu
+  create-menu-bar
+  create-menu
+  create-sub-menu
+  create-popup-menu
+  show-popup-menu
+  separator
+  item)
+
+(defun check-is-menu-type (menu)
+  (java-utils:jcheck-type menu "javax.swing.JMenu" "javax.swing.JPopupMenu"))
 
 (defun char-to-keyevent (ch)
   (check-type ch character)
@@ -19,19 +29,26 @@
     m))
 
 (defun create-sub-menu (menu title)
-  (java-utils:jcheck-type menu "javax.swing.JMenu")
+  (check-is-menu-type menu)
   (check-type title string)
   (let ((sub-menu (jnew "javax.swing.JMenu" title)))
     (jcall "add" menu sub-menu)
     sub-menu))
 
+(defun create-popup-menu ()
+  (jnew "javax.swing.JPopupMenu"))
+
+(defun show-popup-menu (menu component x y)
+  (java-utils:jcheck-type component "java.awt.Component")
+  (jcall "show" menu component x y))
+
 (defun separator (menu)
-  (java-utils:jcheck-type menu "javax.swing.JMenu")
+  (check-is-menu-type menu)
 
   (jcall "addSeparator" menu))
 
 (defun item (menu title action &key keyboard-shortcut &key need-shift)
-  (java-utils:jcheck-type menu "javax.swing.JMenu")
+  (check-is-menu-type menu)
   (check-type title string)
   (check-type action function)
 

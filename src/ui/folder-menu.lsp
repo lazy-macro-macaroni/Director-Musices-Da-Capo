@@ -1,5 +1,8 @@
 
-(globals:standard-package :folder-menu create-tree create-menu)
+(globals:standard-package :folder-menu
+  create-tree
+  create-menu
+  create-popup-menu)
 
 (defclass folder-tree ()
   ((tree :initarg :tree :accessor get-tree)
@@ -50,3 +53,12 @@
   (setf (get-callback ftree) callback)
 
   (create-menu-items ftree (swing-menu:create-sub-menu parent-menu title) (car (get-tree ftree)) t))
+
+(defmethod create-popup-menu ((ftree folder-tree) callback)
+  (check-type callback function)
+
+  (setf (get-callback ftree) callback)
+
+  (let ((menu (swing-menu:create-popup-menu)))
+    (create-menu-items ftree menu (car (get-tree ftree)) t)
+    menu))

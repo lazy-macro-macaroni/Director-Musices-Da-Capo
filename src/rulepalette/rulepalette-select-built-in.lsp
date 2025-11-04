@@ -1,5 +1,7 @@
 
-(globals:standard-package :rulepalette-select-built-in create-menu)
+(globals:standard-package :rulepalette-select-built-in
+  create-menu
+  create-popup-menu)
 
 (defun open-rulepalette (file)
   (file-utils:check-type-is-file file)
@@ -15,3 +17,8 @@
   (ensure-file-tree)
 
   (folder-menu:create-menu *file-tree* menu "Open Built-In Rulepalette" #'open-rulepalette))
+
+(defun create-popup-menu ()
+  (ensure-file-tree)
+
+  (folder-menu:create-popup-menu *file-tree* #'open-rulepalette))

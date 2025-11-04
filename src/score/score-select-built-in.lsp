@@ -1,5 +1,7 @@
 
-(globals:standard-package :score-select-built-in create-menu)
+(globals:standard-package :score-select-built-in
+  create-menu
+  create-popup-menu)
 
 (defun open-score (file)
   (file-utils:check-type-is-file file)
@@ -15,3 +17,8 @@
   (ensure-file-tree)
 
   (folder-menu:create-menu *file-tree* menu "Open Built-In Score" #'open-score))
+
+(defun create-popup-menu ()
+  (ensure-file-tree)
+
+  (folder-menu:create-popup-menu *file-tree* #'open-score))

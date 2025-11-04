@@ -75,7 +75,8 @@
                                    (loop for bt in (sys:backtrace) do (setf backtrace (concatenate 'string backtrace (print-trace-line (jcall "toLispString" bt))))))))
          (progn ,form ,success))
        (error (c)
-         (let* ((callback-message ,(if (not (eq callback-name nil)) (format-string "  Callback: ~A~%" callback-name) ""))
+         (let* ((cname ,callback-name)
+                (callback-message (if (not (eq cname nil)) (format-string "  Callback: ~A~%" cname) ""))
                 (message (format-string "~AError: ~A~%  In file: ~A~%~A  Backtrace:~%~A" (format nil (or ,error-prefix "")) c filename callback-message backtrace)))
           (jcall "print" (jfield "java.lang.System" "err") message)
           (when (not (eq (get-main-window) nil))
@@ -83,7 +84,6 @@
          ,failure))))
 
 (defmacro safe-lambda (name args &rest forms)
-  (check-type name string)
   (check-type args list)
 
   `(lambda ,args
