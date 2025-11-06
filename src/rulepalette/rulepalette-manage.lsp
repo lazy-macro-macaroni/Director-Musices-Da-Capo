@@ -1,8 +1,14 @@
 
 (globals:standard-package :rulepalette-manage
+  new-empty
   new-from-file
   open-rulepalette-dialog
   export-rulepalette-dialog)
+
+(defun new-empty ()
+  (let ((rp (rulepalette-data:create-rulepalette)))
+    (project-data:add-rulepalette (project-current:get-project) rp)
+    rp))
 
 (defun new-from-file (file)
   (file-utils:check-type-is-file file)

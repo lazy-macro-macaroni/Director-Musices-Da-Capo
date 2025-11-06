@@ -29,6 +29,7 @@
     (item-if-score menu "Export Score..." #'score-manage:export-score-dialog)
 
     (swing-menu:separator menu)
+    (swing-menu:item menu "New Rulepalette" #'rulepalette-manage:new-empty)
     (swing-menu:item menu "Open Rulepalette..." #'rulepalette-manage:open-rulepalette-dialog)
     (rulepalette-select-built-in:create-menu menu)
     (item-if-score menu "Export Rulepalette..." #'rulepalette-manage:export-rulepalette-dialog)

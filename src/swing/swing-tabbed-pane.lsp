@@ -3,7 +3,8 @@
   create-tabbed-pane
   add-tab
   insert-tab
-  select-tab)
+  select-tab
+  get-tab-count)
 
 (defun create-tabbed-pane ()
   (jnew "javax.swing.JTabbedPane"))
@@ -28,3 +29,7 @@
   (check-type index integer)
 
   (jcall "setSelectedIndex" tp index))
+
+(defun get-tab-count (tp)
+  (java-utils:jcheck-type tp "javax.swing.JTabbedPane")
+  (jcall "getTabCount" tp))

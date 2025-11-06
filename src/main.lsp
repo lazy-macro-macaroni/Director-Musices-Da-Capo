@@ -41,6 +41,11 @@
       add-rp-pane
       (swing-button:create-button "Open Rulepalette"
         (lambda (button event) (rulepalette-manage:open-rulepalette-dialog))))
+    (swing-box-layout:add-spacer add-rp-pane 15)
+    (swing-box-layout:add
+      add-rp-pane
+      (swing-button:create-button "New Rulepalette"
+        (lambda (button event) (rulepalette-manage:new-empty))))
     (swing-box-layout:add-glue add-rp-pane :horizontal)
 
     (project-data:add-rulepalettes-listener (project-current:get-project)
@@ -48,8 +53,9 @@
         (update-type value)
         (when (eq update-type :add-value)
           (globals:println "Rulepalettes listener triggered. Update type: ~S, Value: ~S, Name: ~S" update-type value (rulepalette-data:get-name value))
-          (swing-tabbed-pane:insert-tab pane 0 (rulepalette-data:get-name value) (swing-box-layout:create-box-layout :horizontal))
-          (swing-tabbed-pane:select-tab pane 0))))
+          (let ((index (- (swing-tabbed-pane:get-tab-count pane) 1)))
+            (swing-tabbed-pane:insert-tab pane index (rulepalette-data:get-name value) (swing-box-layout:create-box-layout :horizontal))
+            (swing-tabbed-pane:select-tab pane index)))))
 
     pane))
 

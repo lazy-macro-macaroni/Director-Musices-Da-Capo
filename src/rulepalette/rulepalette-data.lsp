@@ -9,13 +9,13 @@
 (defparameter *ini-def*
   (ini-definition:create
     "dm-rulepalette"
-    '((:name :string ""))
+    '((:name :string "Unnamed"))
     '()))
 
 (defclass rulepalette ()
   ((ini :accessor ini-a :initarg :ini)
    (name :accessor name-a :initform
-    (data-value:create-data-value "rulepalette-name" "Unnamed" 'string))
+    (data-value:create-data-value "rulepalette-name" "" 'string))
   ))
 
 (defun create-rulepalette ()
