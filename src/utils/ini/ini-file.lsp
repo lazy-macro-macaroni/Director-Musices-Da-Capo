@@ -1,5 +1,19 @@
 
-(globals:standard-package :ini-file :create :get-setting :set-setting :close-file :read-ini-from-file :read-ini-from-string :save-ini-to-file :save-ini-to-string :set-files :get-files :add-file)
+(globals:standard-package :ini-file
+  ini-file
+  create
+  get-file-type
+  add-listener
+  get-setting
+  set-setting
+  close-file
+  read-ini-from-file
+  read-ini-from-string
+  save-ini-to-file
+  save-ini-to-string
+  set-files
+  get-files
+  add-file)
 
 ;; Matchers
 
@@ -22,8 +36,8 @@
 
    (definition :initarg :definition :accessor definition)
    (settings :initform (make-hash-table) :accessor settings)
-   (files :initform (make-hash-table) :accessor files))
-)
+   (files :initform (make-hash-table) :accessor files)
+   (listeners :initform '() :accessor listeners-a)))
 
 (defun create (definition)
   (let ((obj (make-instance 'ini-file :definition definition)))
@@ -39,6 +53,19 @@
 
     obj))
 
+(defmethod get-file-type ((obj ini-file))
+  (ini-definition:get-file-type (definition obj)))
+
+;; Listeners ;;
+
+(defmethod add-listener ((obj ini-file) listener)
+  (check-type listener function)
+  (setf (listeners-a obj) (cons listener (listeners-a obj))))
+
+(defmethod trigger-listeners ((obj ini-file) update-type name value)
+  (loop for listener in (listeners-a obj)
+    do (funcall listener update-type name value)))
+
 ;; Settings ;;
 
 (defmethod get-setting ((obj ini-file) name)
@@ -51,7 +78,7 @@
       (globals:throw-custom-error ini-bad-setting-name-error "Error getting setting. Setting with name ~A doesn't exist." name))
     value))
 
-(defmethod set-setting ((obj ini-file) name value)
+(defmethod set-setting ((obj ini-file) name value &key dont-trigger-listeners)
   (setf name (misc-utils:to-keyword name))
   (ini-definition:validate-name (definition obj) name)
 
@@ -60,7 +87,10 @@
     (globals:throw-custom-error ini-bad-setting-name-error  "Error setting setting. Setting with name ~A doesn't exist. Value: ~S" name value))
 
   (ini-definition:validate-value (definition obj) name value)
-  (setf (gethash name (settings obj)) value))
+  (setf (gethash name (settings obj)) value)
+
+  (when (not dont-trigger-listeners)
+    (trigger-listeners obj :setting name value)))
 
 ;; Files ;;
 

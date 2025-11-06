@@ -21,33 +21,49 @@
   (check-type name string)
   (make-instance 'data-value-list :name name :value-type value-type :allow-nil allow-nil))
 
-(defmethod add-listener ((obj data-value-list) listener)
+;; Listeners ;;
+
+(defun trigger-listeners (obj update-type value)
+  (check-type obj data-value-list)
+  (loop for listener in (listeners-a obj)
+    do (funcall listener update-type value)))
+
+(defun add-listener (obj listener)
+  (check-type obj data-value-list)
   (check-type listener function)
   (let ((current (listeners-a obj)))
     (setf (listeners-a obj) (if (eq current nil) (list listener) (cons listener current))))
-  (funcall listener (value-list-a obj)))
+  (funcall listener :set-list (value-list-a obj)))
 
-(defmethod get-list ((obj data-value-list))
+;; ;;
+
+(defun get-list (obj)
+  (check-type obj data-value-list)
   (value-list-a obj))
 
-(defmethod set-list-2 ((obj data-value-list) new-list)
-  (setf (value-list-a obj) new-list)
+(defun set-list-2 (obj new-list)
+  (check-type obj data-value-list)
+  (setf (value-list-a obj) new-list))
 
-  (loop for listener in (listeners-a obj)
-    do (funcall listener (value-list-a obj))))
-
-(defmethod set-list ((obj data-value-list) new-list)
+(defun set-list (obj new-list)
+  (check-type obj data-value-list)
   (loop for item in new-list
     do  (data-value-common:check-value-type value (value-type-a obj) (allow-nil-a obj)))
-  (set-list-2 obj new-list))
+  (set-list-2 obj new-list)
+  (trigger-listeners obj :set-list (new-list)))
 
-(defmethod add-value ((obj data-value-list) value)
+(defun add-value (obj value)
+  (check-type obj data-value-list)
   (data-value-common:check-value-type value (value-type-a obj) (allow-nil-a obj))
-  (set-list-2 obj (append (get-list obj) (list value))))
+  (set-list-2 obj (append (get-list obj) (list value)))
+  (trigger-listeners obj :add-value value))
 
-(defmethod remove-value ((obj data-value-list) value eq-fn)
-  (set-list-2 obj (loop for item in (get-list obj) unless (funcall eq-fn item value) collect item)))
+(defun remove-value (obj value eq-fn)
+  (check-type obj data-value-list)
+  (set-list-2 obj (loop for item in (get-list obj) unless (funcall eq-fn item value) collect item))
+  (trigger-listeners obj :remove-value value))
 
-(defmethod get-value ((obj data-value-list) index)
+(defun get-value (obj index)
+  (check-type obj data-value-list)
   (check-type index integer)
   (nth index (value-list-a obj)))

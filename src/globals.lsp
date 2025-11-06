@@ -77,7 +77,8 @@
        (error (c)
          (let* ((cname ,callback-name)
                 (callback-message (if (not (eq cname nil)) (format-string "  Callback: ~A~%" cname) ""))
-                (message (format-string "~AError: ~A~%  In file: ~A~%~A  Backtrace:~%~A" (format nil (or ,error-prefix "")) c filename callback-message backtrace)))
+                (message (format-string "~AError: ~A~%~A  Backtrace:~%~A" (format nil (or ,error-prefix "")) c callback-message backtrace)))
+                ; (message (format-string "~AError: ~A~%  In file: ~A~%~A  Backtrace:~%~A" (format nil (or ,error-prefix "")) c filename callback-message backtrace))) ; Wish file name worked.
           (jcall "print" (jfield "java.lang.System" "err") message)
           (when (not (eq (get-main-window) nil))
             (jstatic "ShowError" "dm_java.ErrorDialog" "Error!" "Unknown Error" "There was an unknown error. See details below" message)))

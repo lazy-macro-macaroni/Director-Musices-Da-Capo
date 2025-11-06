@@ -4,7 +4,9 @@
   create-project
   reset-project
   load-from-file
-  save-to-file)
+  save-to-file
+  add-rulepalette
+  add-rulepalettes-listener)
 
 (defparameter *ini-def*
   (ini-definition:create
@@ -15,7 +17,7 @@
 (defclass project ()
   ((ini :accessor ini-a :initarg :ini)
    (scores :accessor scores-a :initform (data-value-list:create-data-value-list "project-scores" 'integer))
-   (rulepalettes :accessor rulepalettes-a :initform (data-value-list:create-data-value-list "project-rulepalettes" 'integer))
+   (rulepalettes :accessor rulepalettes-a :initform (data-value-list:create-data-value-list "project-rulepalettes" 'rulepalette-data:rulepalette))
    (current-file :accessor current-file-a :initform (data-value:create-data-value "project-current-file" nil "java.io.File" :allow-nil t))))
 
 (defun create-project ()
@@ -39,3 +41,13 @@
   (file-utils:check-type-is-file file)
   (ini-file:save-ini-to-file (ini-a p) file)
   (data-value:set-value (current-file-a p) file))
+
+(defun add-rulepalette (p rp)
+  (check-type p project)
+  (check-type rp rulepalette-data:rulepalette)
+  (data-value-list:add-value (rulepalettes-a p) rp))
+
+(defun add-rulepalettes-listener (p listener)
+  (check-type p project)
+
+  (data-value-list:add-listener (rulepalettes-a p) listener))

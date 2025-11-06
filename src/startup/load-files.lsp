@@ -16,12 +16,16 @@
   (finish-output) ; flush output
 
   (let* ((paths (flatten paths1))
-         (count (list-length paths)))
+         (count (list-length paths))
+         (loaded (make-hash-table :test 'equalp)))
     (loop
       for path in paths
       and index from 1 do
       (handler-case
         (let ((loading-message (format nil "Loading: ~A~%" path)))
+          (when (gethash path loaded)
+            (error "Duplicate file load entry. File path: ~S" path))
+          (setf (gethash path loaded) t)
           (if with-ui
             (jstatic "setPercentage" "dm_java.ProgressManager" loading-message (float (/ index count))))
           (load path))
@@ -85,6 +89,9 @@
     "src/utils/file-utils.lsp"
     "src/utils/misc-utils.lsp"
 
+    "src/utils/ini/ini-definition.lsp"
+    "src/utils/ini/ini-file.lsp"
+
     "src/utils/data/data-value-common.lsp"
     "src/utils/data/data-value.lsp"
     "src/utils/data/data-value-list.lsp"
@@ -99,18 +106,18 @@
     "src/swing/swing-split-pane.lsp"
     "src/swing/swing-editor-pane.lsp"
     "src/swing/swing-scroll-pane.lsp"
+    "src/swing/swing-tabbed-pane.lsp"
 
     "src/ui/folder-menu.lsp"
 
     "src/window/calculate-window-size.lsp"
 
-    "src/utils/ini/ini-definition.lsp"
-    "src/utils/ini/ini-file.lsp"
-
+    "src/rulepalette/rulepalette-data.lsp"
+    "src/score/score-data.lsp"
     "src/project/project-data.lsp"
+
     "src/project/project-current.lsp"
 
-    "src/score/score-data.lsp"
     "src/score/score-manage.lsp"
     "src/score/score-select-built-in.lsp"
 

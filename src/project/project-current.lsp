@@ -9,10 +9,6 @@
 
 (defparameter *current-project* nil)
 
-(defun reset-project ()
-  (setf *current-project* nil)
-  (ensure-project))
-
 (defun ensure-project ()
   (if (eq *current-project* nil)
     (setf *current-project* (project-data:create-project))))

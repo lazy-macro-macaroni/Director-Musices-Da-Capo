@@ -3,7 +3,8 @@
   create-data-value
   get-value
   set-value
-  add-listener)
+  add-listener
+  connect-to-ini)
 
 (defclass data-value ()
   ((name :initarg :name)
@@ -32,3 +33,17 @@
   (let ((current (slot-value obj 'listeners)))
     (setf (slot-value obj 'listeners) (if (eq current nil) (list listener) (cons listener current))))
   (funcall listener (slot-value obj 'value)))
+
+(defun connect-to-ini (obj ini field)
+  (check-type obj data-value)
+  (check-type ini ini-file:ini-file)
+  (setf field (misc-utils:to-keyword field))
+
+  (set-value obj (ini-file:get-setting ini field))
+  (add-listener obj (lambda (value) (ini-file:set-setting ini field value :dont-trigger-listeners t)))
+  (ini-file:add-listener ini
+    (globals:safe-lambda
+      (globals:format-string "INI to DATA-VALUE listener. Ini file type: ~A, Field: ~S" (ini-file:get-file-type ini) field)
+      (update-type name value)
+      (when (and (string= update-type :setting) (string= field name))
+        (set-value obj value)))))
