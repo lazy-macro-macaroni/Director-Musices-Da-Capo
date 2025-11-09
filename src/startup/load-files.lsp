@@ -124,6 +124,7 @@
     "src/rulepalette/rulepalette-manage.lsp"
     "src/rulepalette/rulepalette-select-built-in.lsp"
 
+    "src/ui/tab-manager.lsp"
     "src/ui/glue.lsp"
     "src/ui/player.lsp"
     "src/ui/help.lsp"

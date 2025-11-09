@@ -1,12 +1,16 @@
 
 (globals:standard-package :data-value-list
+  data-value-list
   create-data-value-list
   add-listener
+  get-name
   get-list
+  get-length
   set-list
   add-value
   remove-value
-  get-value)
+  get-value
+  mapped-data-value-list)
 
 ;; DATA LIST VALUE ;;
 
@@ -37,9 +41,17 @@
 
 ;; ;;
 
+(defun get-name (obj)
+  (check-type obj data-value-list)
+  (name-a obj))
+
 (defun get-list (obj)
   (check-type obj data-value-list)
   (value-list-a obj))
+
+(defun get-length (obj)
+  (check-type obj data-value-list)
+  (list-length (get-list obj)))
 
 (defun set-list-2 (obj new-list)
   (check-type obj data-value-list)
@@ -47,10 +59,10 @@
 
 (defun set-list (obj new-list)
   (check-type obj data-value-list)
-  (loop for item in new-list
+  (loop for value in new-list
     do  (data-value-common:check-value-type value (value-type-a obj) (allow-nil-a obj)))
   (set-list-2 obj new-list)
-  (trigger-listeners obj :set-list (new-list)))
+  (trigger-listeners obj :set-list new-list))
 
 (defun add-value (obj value)
   (check-type obj data-value-list)
@@ -67,3 +79,33 @@
   (check-type obj data-value-list)
   (check-type index integer)
   (nth index (value-list-a obj)))
+
+;; Mapped ;;
+
+(defun mapped-data-value-list (name value-type in-list map-fn)
+  "Create a data-value-list that listens to another data-value-list and runs MAP-FN on each value."
+  (let ((dvl (create-data-value-list name value-type))
+        (mapped-cache (make-hash-table :test #'eq)))
+
+    (add-listener in-list
+      (globals:safe-lambda (globals:format-string "Mapped Value List: ~S" name)
+        (update-type value)
+        (set-list dvl
+          (loop for item in (get-list in-list)
+            collect
+            (if (gethash item mapped-cache)
+              (gethash item mapped-cache)
+              (progn
+                (globals:println "yep")
+                (setf (gethash item mapped-cache) (funcall map-fn item))
+                (globals:println "Set to: ~S, FN result: ~S" (gethash item mapped-cache) (funcall map-fn item))
+                (gethash item mapped-cache)))))
+
+        (clrhash mapped-cache)
+
+        (let ((cur-list (get-list dvl)))
+          (loop for item in (get-list in-list)
+            for i from 0
+            do (setf (gethash item mapped-cache) (nth i cur-list))))))
+
+    dvl))

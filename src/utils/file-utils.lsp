@@ -17,6 +17,7 @@
   ensure-file-ending
   read-from-file
   read-lines-from-file
+  read-first-line-from-file
   save-to-file
   list-files-recursive
   list-files)
@@ -104,6 +105,15 @@
 (defun read-lines-from-file (file)
   (check-type-is-file file)
   (java-utils:array-to-list (jcall-raw "toArray" (jstatic-raw "readAllLines" "java.nio.file.Files" (jpath file)))))
+
+(defun read-first-line-from-file (file)
+  (check-type-is-file file)
+
+  (let* ((fr (jnew "java.io.FileReader" file))
+         (br (jnew "java.io.BufferedReader" fr))
+         (line (jcall "readLine" br)))
+    (jcall "close" br)
+    line))
 
 (defun save-to-file (file content)
   (check-type-is-file file)

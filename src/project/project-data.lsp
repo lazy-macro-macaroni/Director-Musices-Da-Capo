@@ -6,7 +6,11 @@
   load-from-file
   save-to-file
   add-rulepalette
-  add-rulepalettes-listener)
+  add-rulepalettes-listener
+  get-scores-data
+  add-score
+  add-scores-listener
+  get-rulepalettes-data)
 
 (defparameter *ini-def*
   (ini-definition:create
@@ -16,7 +20,7 @@
 
 (defclass project ()
   ((ini :accessor ini-a :initarg :ini)
-   (scores :accessor scores-a :initform (data-value-list:create-data-value-list "project-scores" 'integer))
+   (scores :accessor scores-a :initform (data-value-list:create-data-value-list "project-scores" 'score-data:score))
    (rulepalettes :accessor rulepalettes-a :initform (data-value-list:create-data-value-list "project-rulepalettes" 'rulepalette-data:rulepalette))
    (current-file :accessor current-file-a :initform (data-value:create-data-value "project-current-file" nil "java.io.File" :allow-nil t))))
 
@@ -49,5 +53,26 @@
 
 (defun add-rulepalettes-listener (p listener)
   (check-type p project)
+  (check-type listener function)
 
   (data-value-list:add-listener (rulepalettes-a p) listener))
+
+(defun get-scores-data (p)
+  (check-type p project)
+  (scores-a p))
+
+(defun add-score (p score)
+  (check-type p project)
+  (check-type score score-data:score)
+
+  (data-value-list:add-value (scores-a p) score))
+
+(defun add-scores-listener (p listener)
+  (check-type p project)
+  (check-type listener function)
+
+  (data-value-list:add-listener (scores-a p) listener))
+
+(defun get-rulepalettes-data (p)
+  (check-type p project)
+  (rulepalettes-a p))

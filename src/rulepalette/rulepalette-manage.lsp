@@ -12,8 +12,13 @@
 
 (defun new-from-file (file)
   (file-utils:check-type-is-file file)
-  (let ((rp (rulepalette-data:create-rulepalette)))
-    (rulepalette-data:load-from-file rp file)
+  (let ((rp (rulepalette-data:create-rulepalette))
+        (first-line (string-utils:trim (file-utils:read-first-line-from-file file))))
+
+    (if (string= "INIFILE" first-line)
+      (rulepalette-data:load-from-file rp file)
+      (rulepalette-data:parse-legacy-rulepalette rp file))
+
     (project-data:add-rulepalette (project-current:get-project) rp)
     rp))
 

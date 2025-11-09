@@ -4,7 +4,8 @@
   add-tab
   insert-tab
   select-tab
-  get-tab-count)
+  get-tab-count
+  remove-all-tabs)
 
 (defun create-tabbed-pane ()
   (jnew "javax.swing.JTabbedPane"))
@@ -33,3 +34,7 @@
 (defun get-tab-count (tp)
   (java-utils:jcheck-type tp "javax.swing.JTabbedPane")
   (jcall "getTabCount" tp))
+
+(defun remove-all-tabs (tp)
+  (java-utils:jcheck-type tp "javax.swing.JTabbedPane")
+  (jcall "removeAll" tp))

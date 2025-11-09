@@ -5,7 +5,7 @@
 
 (defun open-score (file)
   (file-utils:check-type-is-file file)
-  (globals:println "Not Implemented: score-select:open-score"))
+  (score-manage:new-from-file file))
 
 (defparameter *file-tree* nil)
 

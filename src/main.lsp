@@ -1,12 +1,15 @@
 
 (globals:standard-package :main :main)
 
+(defun create-score-view (score)
+  (swing-box-layout:create-box-layout :horizontal))
+
 (defun score-pane ()
   (let ((score-popup-menu (score-select-built-in:create-popup-menu))
-        (pane (swing-tabbed-pane:create-tabbed-pane))
+        (tabs (tab-manager:create-tab-manager (project-data:get-scores-data (project-current:get-project)) #'score-data:get-name #'create-score-view))
         (add-song-pane (swing-box-layout:create-box-layout :horizontal)))
 
-    (swing-tabbed-pane:add-tab pane "+" add-song-pane)
+    (tab-manager:add-extra-tab tabs "+" add-song-pane)
 
     (swing-box-layout:add-glue add-song-pane :horizontal)
     (swing-box-layout:add
@@ -21,14 +24,17 @@
         (lambda (button event) (score-manage:open-score-dialog))))
     (swing-box-layout:add-glue add-song-pane :horizontal)
 
-    pane))
+    (tab-manager:get-component tabs)))
+
+(defun create-rulepalette-view (rp)
+  (swing-box-layout:create-box-layout :horizontal))
 
 (defun rulepalette-pane ()
   (let ((rulepalette-popup-menu (rulepalette-select-built-in:create-popup-menu))
-        (pane (swing-tabbed-pane:create-tabbed-pane))
+        (tabs (tab-manager:create-tab-manager (project-data:get-rulepalettes-data (project-current:get-project)) #'rulepalette-data:get-name #'create-rulepalette-view))
         (add-rp-pane (swing-box-layout:create-box-layout :horizontal)))
 
-    (swing-tabbed-pane:add-tab pane "+" add-rp-pane)
+    (tab-manager:add-extra-tab tabs "+" add-rp-pane)
 
     (swing-box-layout:add-glue add-rp-pane :horizontal)
     (swing-box-layout:add
@@ -48,16 +54,7 @@
         (lambda (button event) (rulepalette-manage:new-empty))))
     (swing-box-layout:add-glue add-rp-pane :horizontal)
 
-    (project-data:add-rulepalettes-listener (project-current:get-project)
-      (globals:safe-lambda "Main UI Rulepalettes Listener"
-        (update-type value)
-        (when (eq update-type :add-value)
-          (globals:println "Rulepalettes listener triggered. Update type: ~S, Value: ~S, Name: ~S" update-type value (rulepalette-data:get-name value))
-          (let ((index (- (swing-tabbed-pane:get-tab-count pane) 1)))
-            (swing-tabbed-pane:insert-tab pane index (rulepalette-data:get-name value) (swing-box-layout:create-box-layout :horizontal))
-            (swing-tabbed-pane:select-tab pane index)))))
-
-    pane))
+    (tab-manager:get-component tabs)))
 
 (defun main-split-pane ()
   (let* ((top (score-pane))

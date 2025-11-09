@@ -4,7 +4,8 @@
   create-rulepalette
   get-name
   load-from-file
-  save-to-file)
+  save-to-file
+  parse-legacy-rulepalette)
 
 (defparameter *ini-def*
   (ini-definition:create
@@ -23,7 +24,7 @@
     (data-value:connect-to-ini (name-a rp) (ini-a rp) :name)
     (data-value:add-listener (name-a rp)
       (lambda (value)
-        (globals:println "Name set to: ~S, ini name is: ~S" value (ini-file:get-setting (ini-a rp) :name))))
+        (swing-threads:invoke-later (globals:println "Rulepalette name set to: ~S, ini name is: ~S" value (ini-file:get-setting (ini-a rp) :name)))))
     rp))
 
 (defun get-name (rp)
@@ -39,3 +40,10 @@
   (check-type rp rulepalette)
   (file-utils:check-type-is-file file)
   (ini-file:save-ini-to-file (ini-a rp) file))
+
+(defun parse-legacy-rulepalette (rp file)
+  (check-type rp rulepalette)
+  (file-utils:check-type-is-file file)
+
+  (data-value:set-value (name-a rp) (file-utils:file-name-no-extension file))
+  (globals:println "Not Implemented: rulepalette-data:parse-legacy-rulepalette"))

@@ -1,10 +1,28 @@
 
 (globals:standard-package :string-utils
-  :*newline* :starts-with-p :ends-with-p :contains-p :alphanumeric-p :remove-suffix :split
-  split-string-on-char split-string-on-all-char
-  :uppercase :join-strings :regex-matcher :match :match-once :define-matcher)
+  *newline*
+  trim
+  starts-with-p
+  ends-with-p
+  contains-p
+  alphanumeric-p
+  remove-suffix
+  split
+  split-string-on-char
+  split-string-on-all-char
+  uppercase
+  join-strings
+  regex-matcher
+  match
+  match-once
+  define-matcher)
 
 (defparameter *newline* (globals:format-string "~%"))
+
+(defun trim (str)
+  "Remove whitespaces from both ends of the string STR."
+  (check-type str string)
+  (jcall "trim" str))
 
 (defun starts-with-p (str prefix)
   "Checks if STR starts with PREFIX."
