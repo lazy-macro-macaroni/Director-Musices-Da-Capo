@@ -94,6 +94,7 @@
 
     "src/utils/data/data-value-common.lsp"
     "src/utils/data/data-value.lsp"
+    "src/utils/data/data-value-list-update.lsp"
     "src/utils/data/data-value-list.lsp"
 
     "src/swing/dialogs.lsp"

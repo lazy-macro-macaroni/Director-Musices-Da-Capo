@@ -27,17 +27,22 @@
 
 ;; Listeners ;;
 
-(defun trigger-listeners (obj update-type value)
+(defun trigger-update (obj update)
   (check-type obj data-value-list)
+  (check-type update data-value-list-update:data-value-list-update)
   (loop for listener in (listeners-a obj)
-    do (funcall listener update-type value)))
+    do (funcall listener update)))
+
+(defun trigger-listeners (obj update-type index value)
+  (check-type obj data-value-list)
+  (trigger-update obj (data-value-list-update:create update-type index value)))
 
 (defun add-listener (obj listener)
   (check-type obj data-value-list)
   (check-type listener function)
   (let ((current (listeners-a obj)))
     (setf (listeners-a obj) (if (eq current nil) (list listener) (cons listener current))))
-  (funcall listener :set-list (value-list-a obj)))
+  (funcall listener (data-value-list-update:create data-value-list-update:type-set-list 0 (value-list-a obj))))
 
 ;; ;;
 
@@ -62,18 +67,19 @@
   (loop for value in new-list
     do  (data-value-common:check-value-type value (value-type-a obj) (allow-nil-a obj)))
   (set-list-2 obj new-list)
-  (trigger-listeners obj :set-list new-list))
+  (trigger-listeners obj data-value-list-update:type-set-list 0 new-list))
 
 (defun add-value (obj value)
   (check-type obj data-value-list)
   (data-value-common:check-value-type value (value-type-a obj) (allow-nil-a obj))
   (set-list-2 obj (append (get-list obj) (list value)))
-  (trigger-listeners obj :add-value value))
+  (trigger-listeners obj data-value-list-update:type-add-value (- (list-length (get-list obj)) 1) value))
 
 (defun remove-value (obj value eq-fn)
   (check-type obj data-value-list)
   (set-list-2 obj (loop for item in (get-list obj) unless (funcall eq-fn item value) collect item))
-  (trigger-listeners obj :remove-value value))
+  (globals:println "Not implemented: Index when removing value in data-value-list.")
+  (trigger-listeners obj data-value-list-update:type-remove-value 0 value))
 
 (defun get-value (obj index)
   (check-type obj data-value-list)
@@ -89,17 +95,24 @@
 
     (add-listener in-list
       (globals:safe-lambda (globals:format-string "Mapped Value List: ~S" name)
-        (update-type value)
-        (set-list dvl
-          (loop for item in (get-list in-list)
-            collect
-            (if (gethash item mapped-cache)
-              (gethash item mapped-cache)
-              (progn
-                (globals:println "yep")
-                (setf (gethash item mapped-cache) (funcall map-fn item))
-                (globals:println "Set to: ~S, FN result: ~S" (gethash item mapped-cache) (funcall map-fn item))
-                (gethash item mapped-cache)))))
+        (update)
+        (let ((out-updates '()))
+          (set-list-2 dvl
+            (loop for item in (get-list in-list)
+              collect
+              (if (gethash item mapped-cache)
+                (gethash item mapped-cache)
+                (progn
+                  (setf (gethash item mapped-cache) (funcall map-fn item))
+                  (gethash item mapped-cache)))))
+
+          (let ((update-type (data-value-list-update:get-update-type update))
+                (index (data-value-list-update:get-index update)))
+            (case update-type
+              (:type-add-value (trigger-listeners dvl :type-add-value index (nth index (get-list dvl))))
+              (:type-set-list (trigger-listeners dvl :type-set-list 0 (get-list dvl)))
+              (otherwise
+                (error "Unhandled update type: ~S, in mapped-data-value-list." update-type)))))
 
         (clrhash mapped-cache)
 

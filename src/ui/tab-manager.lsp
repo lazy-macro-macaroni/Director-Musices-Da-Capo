@@ -49,8 +49,10 @@
 
     (data-value-list:add-listener comp-list
       (globals:safe-lambda "Tab Manager Tabs Updater"
-        (update-type value)
-        (update-tabs tm)))
+        (update)
+        (update-tabs tm)
+        (when (string= data-value-list-update:type-add-value (data-value-list-update:get-update-type update))
+          (swing-tabbed-pane:select-tab c (data-value-list-update:get-index update)))))
 
     tm))
 
